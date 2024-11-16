@@ -20,7 +20,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="apple-touch-icon" sizes="76x76" href="<?= base_url() ?>assets/img/apple-icon.png" />
     <link rel="icon" type="image/png" href="<?= base_url() ?>assets/img/favicon.png" />
-    <title>Soft UI Dashboard Tailwind</title>
+    <title>Register Siupsi</title>
     <!-- Fonts and icons -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
     <!-- Font Awesome Icons -->
@@ -102,24 +102,39 @@
                   </div>
                 </div>
                 <div class="flex-auto p-6">
-                  <form role="form text-left">
+                  <form role="form text-left" method="post" action="<?= base_url('auth/register');?>">
+                  <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Nama</label>
                     <div class="mb-4">
-                      <input type="text" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Name" id="name" name="name"  aria-describedby="email-addon" />
+                      <input type="text" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" value="<?= set_value('nama');?>" placeholder="Nama" id="nama" name="nama"  />
+                     <?= form_error('nama', ' <small class="text-red-500 text-sm pl-3">', '</small>'); ?>
                     </div>
+                  <label class="mb-2 ml-1 font-bold text-xs text-slate-700">NIM</label>
                     <div class="mb-4">
-                      <input type="text" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Email" id="email" name="email" aria-describedby="email-addon" />
+                      <input type="text" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" value="<?= set_value('nim');?>" placeholder="NIM" id="nim" name="nim"  />
+                      <?= form_error('nim', ' <small class="text-red-500 text-sm pl-3">', '</small>'); ?>
                     </div>
+                    <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Email</label>
                     <div class="mb-4">
-                      <input type="password" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Password" id="password" name="password" aria-describedby="password-addon" />
+                      <input type="text" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" value="<?= set_value('email');?>" placeholder="Email@almaata.ac.id" id="email" name="email" />
+                      <?= form_error('email', ' <small class="text-red-500 text-sm pl-3">', '</small>'); ?>
+                    </div>
+                    <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Password</label>
+                    <div class="mb-4">
+                      <input type="password" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Password" id="password1" name="password1"  />
+                      <?= form_error('password1', ' <small class="text-red-500 text-sm pl-3">', '</small>'); ?>
+                    </div>
+                    <label class="mb-2 ml-1 font-bold text-xs text-slate-700">Repeat Password</label>
+                    <div class="mb-4">
+                      <input type="password" class="text-sm focus:shadow-soft-primary-outline leading-5.6 ease-soft block w-full appearance-none rounded-lg border border-solid border-gray-300 bg-white bg-clip-padding py-2 px-3 font-normal text-gray-700 transition-all focus:border-fuchsia-300 focus:bg-white focus:text-gray-700 focus:outline-none focus:transition-shadow" placeholder="Repeat Password" id="password2" name="password2" />
                     </div>
                     <!-- <div class="min-h-6 pl-6.92 mb-0.5 block">
                       <input id="terms" class="w-4.92 h-4.92 ease-soft -ml-6.92 rounded-1.4 checked:bg-gradient-to-tl checked:from-gray-900 checked:to-slate-800 after:text-xxs after:font-awesome after:duration-250 after:ease-soft-in-out duration-250 relative float-left mt-1 cursor-pointer appearance-none border border-solid border-slate-200 bg-white bg-contain bg-center bg-no-repeat align-top transition-all after:absolute after:flex after:h-full after:w-full after:items-center after:justify-center after:text-white after:opacity-0 after:transition-all after:content-['\f00c'] checked:border-0 checked:border-transparent checked:bg-transparent checked:after:opacity-100" type="checkbox" value="" checked />
                       <label class="mb-2 ml-1 font-normal cursor-pointer select-none text-sm text-slate-700" for="terms"> I agree the <a href="javascript:;" class="font-bold text-slate-700">Terms and Conditions</a> </label>
                     </div> -->
                     <div class="text-center">
-                        <button type="button" class="inline-block w-full px-6 py-3 mt-6 mb-0 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-blue-600 to-cyan-400 hover:scale-102 hover:shadow-soft-xs active:opacity-85">Sign Up</button>
+                        <button type="submit" class="inline-block w-full px-6 py-3 mt-6 mb-0 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-blue-600 to-cyan-400 hover:scale-102 hover:shadow-soft-xs active:opacity-85">Sign Up</button>
                       </div>
-                      <p class="mt-4 mb-0 leading-normal text-sm">Already have an account? <a href="<?= base_url() ?>pages/sign-in.html" class="relative z-10 font-semibold text-transparent bg-gradient-to-tl from-blue-600 to-cyan-400 bg-clip-text">Sign in</a>
+                      <p class="mt-4 mb-0 leading-normal text-sm">Already have an account? <a href="<?= base_url('auth') ?>" class="relative z-10 font-semibold text-transparent bg-gradient-to-tl from-blue-600 to-cyan-400 bg-clip-text">Sign in</a>
                     </p>
                   </form>
                 </div>
