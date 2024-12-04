@@ -11,6 +11,8 @@
 	<link rel="icon" type="image/png" href="<?= base_url() ?>assets/img/favicon.png" />
 	<title><?= $title?></title>
 	<!--     Fonts and icons     -->
+	<link href="<?= base_url('assets/css/style.css') ?>" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 	<link
 		href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
 		rel="stylesheet" />
@@ -27,6 +29,7 @@
 	<link
 		href="<?= base_url() ?>assets/css/soft-ui-dashboard-tailwind.css?v=1.0.5"
 		rel="stylesheet" />
+		<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 
 	<!-- Nepcha Analytics (nepcha.com) -->
 	<!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->

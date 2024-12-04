@@ -3,12 +3,16 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class Auth extends CI_Controller
 {
-    public function __construct(){
-        parent::__construct();
-        $this->load->library('form_validation');
-        $this->load->library('session');
-        $this->load->database(); // Pastikan database sudah terhubung
-    }
+    public function __construct()
+{
+    parent::__construct();
+    $this->load->library('form_validation'); // Validasi Form
+    $this->load->library('session');         // Session
+    $this->load->database();                 // Database
+    $this->load->helper('url');              // Helper URL untuk fungsi redirect
+    $this->load->helper('form');             // Helper Form jika diperlukan
+}
+
 
     public function index(){
         $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email', [
@@ -31,28 +35,29 @@ class Auth extends CI_Controller
         $password = $this->input->post('password');
     
         // Cek apakah email terdaftar di tabel admin
-        $user = $this->db->select('id, nama, email, password, role_id')
-                         ->from('admin')
-                         ->where('email', $email)
-                         ->get()
-                         ->row_array();
+        $user = $this->db->select('id, nama, email, password, role_id,')
+        ->from('admin')
+        ->where('email', $email)
+        ->get()
+        ->row_array();
     
         // Jika tidak ditemukan di tabel admin, cek tabel dosen
         if (!$user) {
-            $user = $this->db->select('id, nama, email, password, role_id')
-                             ->from('dosen')
-                             ->where('email', $email)
-                             ->get()
-                             ->row_array();
+            $user = $this->db->select('id, nama, email, password, role_id,')
+            ->from('dosen')
+            ->where('email', $email)
+            ->get()
+            ->row_array();
         }
     
         // Jika tidak ditemukan di tabel dosen, cek tabel mahasiswa
         if (!$user) {
-            $user = $this->db->select('id, nama, email, password, role_id')
-                             ->from('mahasiswa')
-                             ->where('email', $email)
-                             ->get()
-                             ->row_array();
+            $user = $this->db->select('id, nama, email, password, role_id, nim, fakultas, prodi, is_active, date_created')
+            ->from('mahasiswa')
+            ->where('email', $email)
+            ->get()
+            ->row_array();
+
         }
     
         if ($user) {
@@ -60,11 +65,16 @@ class Auth extends CI_Controller
                 // Ambil role_name dari roles table berdasarkan role_id
                 $role = $this->db->get_where('roles', ['id' => $user['role_id']])->row_array();
                 $data = [
-                    'id' => $user['id'],
-                    'nama' => $user['nama'],  // Simpan nama pengguna di session
-                    'email' => $user['email'],
+                    'id' => $user['id'],          
+                    'nama' => $user['nama'],      
+                    'email' => $user['email'],    
                     'role_id' => $user['role_id'],
-                    'role' => $role['role_name'] // Simpan role_name di session
+                    'role' => $role['role_name'], 
+                    'nim' => $user['nim'],        
+                    'fakultas' => $user['fakultas'], 
+                    'prodi' => $user['prodi'],    
+                    'is_active' => $user['is_active'], 
+                    'date_created' => $user['date_created'] 
                 ];
                 $this->session->set_userdata($data);
     

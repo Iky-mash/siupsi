@@ -1,16 +1,34 @@
-// Navbar stick on scroll ++ styles
+window.addEventListener("DOMContentLoaded", function () {
+	var navbar = document.querySelector("[navbar-main]");
 
-var navbar = document.querySelector("[navbar-main]");
+	if (navbar) {
+		window.onscroll = function () {
+			let blur = navbar.getAttribute("navbar-scroll");
+			if (blur == "true") stickyNav();
+		};
 
-window.onscroll = function () {
-  let blur = navbar.getAttribute("navbar-scroll");
-  if (blur == "true") stickyNav();
-};
-
-function stickyNav() {
-  if (window.scrollY >= 5) {
-    navbar.classList.add("sticky", "top-[1%]", "backdrop-saturate-[200%]", "backdrop-blur-[30px]", "bg-[hsla(0,0%,100%,0.8)]", "shadow-blur", "z-110");
-  } else {
-    navbar.classList.remove("sticky", "top-[1%]", "backdrop-saturate-[200%]", "backdrop-blur-[30px]", "bg-[hsla(0,0%,100%,0.8)]", "shadow-blur", "z-110");
-  }
-}
+		function stickyNav() {
+			if (window.scrollY >= 5) {
+				navbar.classList.add(
+					"sticky",
+					"top-[1%]",
+					"backdrop-saturate-[200%]",
+					"backdrop-blur-[30px]",
+					"bg-[hsla(0,0%,100%,0.8)]",
+					"shadow-blur",
+					"z-110"
+				);
+			} else {
+				navbar.classList.remove(
+					"sticky",
+					"top-[1%]",
+					"backdrop-saturate-[200%]",
+					"backdrop-blur-[30px]",
+					"bg-[hsla(0,0%,100%,0.8)]",
+					"shadow-blur",
+					"z-110"
+				);
+			}
+		}
+	}
+});
