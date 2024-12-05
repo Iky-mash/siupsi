@@ -114,25 +114,37 @@ class Admin extends CI_Controller {
 
     // Menyetuju atau Menolak Pengajuan Ujian
     public function verifikasi_pengajuan($pengajuan_id) {
+        $this->load->model('JadwalUjian_model');
+        $this->load->model('Pengajuan_model');
+    
+        // Ambil data pengajuan berdasarkan ID
         $pengajuan = $this->Pengajuan_model->get_pengajuan_by_id($pengajuan_id);
-        
-        // Verifikasi kelengkapan dokumen
-        if (empty($pengajuan['lembar_pengesahan'])) {
-            $this->session->set_flashdata('error', 'Dokumen tidak lengkap.');
+    
+        // Periksa apakah pengajuan valid
+        if ($pengajuan) {
+            // Update status pengajuan menjadi 'Disetujui'
+            $this->Pengajuan_model->update_status($pengajuan_id, 'Disetujui');
+    
+            // Dapatkan rekomendasi jadwal ujian
+            $jadwal_rekomendasi = $this->JadwalUjian_model->generateJadwalRekomendasi($pengajuan_id);
+    
+            if ($jadwal_rekomendasi) {
+                // Simpan jadwal rekomendasi ke database
+                $this->JadwalUjian_model->simpanJadwal($jadwal_rekomendasi);
+    
+                // Redirect atau tampilkan hasil jadwal rekomendasi
+                $this->session->set_flashdata('success', 'Pengajuan disetujui dan jadwal ujian berhasil dibuat.');
+                redirect('admin/jadwal_ujian');
+            } else {
+                $this->session->set_flashdata('error', 'Tidak ada jadwal yang tersedia untuk rekomendasi.');
+                redirect('admin/pengajuan_ujian');
+            }
+        } else {
+            $this->session->set_flashdata('error', 'Pengajuan tidak ditemukan.');
             redirect('admin/pengajuan_ujian');
         }
-
-        // Verifikasi apakah mahasiswa sudah sempro
-        if (!$this->Pengajuan_model->cek_status_pengajuan($pengajuan['mahasiswa_id'])) {
-            $this->session->set_flashdata('error', 'Mahasiswa belum melakukan seminar proposal.');
-            redirect('admin/pengajuan_ujian');
-        }
-
-        // Jika memenuhi syarat, admin menyetujui pengajuan
-        $this->Pengajuan_model->update_status_pengajuan($pengajuan_id, 'Disetujui');
-        $this->session->set_flashdata('success', 'Pengajuan ujian disetujui.');
-        redirect('admin/pengajuan_ujian');
     }
+    
 
     // Menolak pengajuan ujian dengan alasan
     public function tolak_pengajuan($pengajuan_id) {

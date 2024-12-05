@@ -106,7 +106,9 @@ class Mahasiswa extends CI_Controller{
         $mahasiswa_id = $this->session->userdata('id'); // Pastikan Anda sudah menyimpan ID mahasiswa di session
         $this->load->model('Pengajuan_model');
         $data['pengajuan'] = $this->Pengajuan_model->get_pengajuan_by_mahasiswa($mahasiswa_id);
-      
+        $this->load->model('JadwalUjian_model');
+        $mahasiswaId = $this->session->userdata('mahasiswa_id');
+        $data['jadwal'] = $this->JadwalUjian_model->getJadwalByMahasiswa($mahasiswaId); 
         
         // Kirimkan data ke view
         $this->load->view('templates/header', $data);

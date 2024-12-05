@@ -48,3 +48,33 @@
     <p class="mt-4 text-gray-500">Anda belum mengajukan ujian skripsi.</p>
   <?php endif; ?>
 </div>
+
+
+<h3>Jadwal Ujian Mahasiswa</h3>
+
+<?php if (empty($jadwal)): ?>
+    <p>Tidak ada jadwal ujian.</p>
+<?php else: ?>
+    <table border="1" cellpadding="5">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Judul Tugas Akhir</th>
+                <th>Tanggal</th>
+                <th>Waktu</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($jadwal as $index => $item): ?>
+                <tr>
+                    <td><?= $index + 1; ?></td>
+                    <td><?= $item['thesis_title']; ?></td>
+                    <td><?= $item['tanggal']; ?></td>
+                    <td><?= $item['waktu_mulai']; ?> - <?= $item['waktu_selesai']; ?></td>
+                    <td><?= $item['status']; ?></td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+<?php endif; ?>

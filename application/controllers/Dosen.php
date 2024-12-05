@@ -75,10 +75,12 @@ class Dosen extends CI_Controller{
         // Ambil ID dosen dari tabel dosen
         $dosen = $this->db->get_where('dosen', ['email' => $this->session->userdata('email')])->row_array();
         $pembimbing_id = $dosen['id'];
-    
+        $this->load->model('JadwalUjian_model');
         // Load Mahasiswa_model dan ambil data mahasiswa
         $this->load->model('Mahasiswa_model');
         $data['mahasiswa'] = $this->Mahasiswa_model->get_mahasiswa_by_pembimbing($pembimbing_id);
+        $dosenId = $this->session->userdata('dosen_id');
+        $data['jadwal'] = $this->JadwalUjian_model->getJadwalByDosen($dosenId);
     
         // Tampilkan ke view
         $this->load->view('templates/header', $data);
