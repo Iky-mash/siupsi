@@ -33,12 +33,13 @@ class Pengajuan_model extends CI_Model {
     }
 
     // Mendapatkan pengajuan ujian berdasarkan ID
-    public function get_pengajuan_by_id($id) {
-        $this->db->select('*');
+    public function get_pengajuan_by_id($id)
+    {
+        $this->db->select('pengajuan_ujian.*, mahasiswa.pembimbing_id, mahasiswa.penguji1_id, mahasiswa.penguji2_id');
         $this->db->from('pengajuan_ujian');
-        $this->db->where('id', $id);
-        $query = $this->db->get();
-        return $query->row_array();
+        $this->db->join('mahasiswa', 'mahasiswa.id = pengajuan_ujian.mahasiswa_id');
+        $this->db->where('pengajuan_ujian.id', $id);
+        return $this->db->get()->row();
     }
     public function get_pengajuan_by_mahasiswa($mahasiswa_id) {
         $this->db->where('mahasiswa_id', $mahasiswa_id);
@@ -64,5 +65,13 @@ class Pengajuan_model extends CI_Model {
         );
         $this->db->where('id', $id);
         return $this->db->update('pengajuan_ujian', $data);
+    }
+    public function getMahasiswaDisetujui() {
+        $this->db->select('pengajuan_ujian.id AS pengajuan_id, mahasiswa.id AS mahasiswa_id, mahasiswa.nama, mahasiswa.nim, mahasiswa.judul_skripsi, dosen.nama AS pembimbing');
+        $this->db->from('pengajuan_ujian');
+        $this->db->join('mahasiswa', 'pengajuan_ujian.mahasiswa_id = mahasiswa.id');
+        $this->db->join('dosen', 'mahasiswa.pembimbing_id = dosen.id');
+        $this->db->where('pengajuan_ujian.status', 'Disetujui');
+        return $this->db->get()->result_array();
     }
 }

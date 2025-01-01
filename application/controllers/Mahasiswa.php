@@ -30,6 +30,7 @@ class Mahasiswa extends CI_Controller{
 
         // Ambil data mahasiswa beserta nama pembimbingnya
         $data['mahasiswa'] = $this->Mahasiswa_model->get_mahasiswa_with_pembimbing();
+        
 
 
         $this->load->view('templates/header', $data);

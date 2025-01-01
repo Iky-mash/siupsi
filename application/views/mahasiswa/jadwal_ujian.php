@@ -1,6 +1,6 @@
 <div class="min-h-screen flex flex-col px-6 py-6 mx-auto">
   <!-- row 1 -->
-  <div class="container mx-auto mt-8 flex justify-between items-center">
+  <div class="container mx-auto flex justify-between items-center">
     <h2 class="text-2xl font-semibold text-gray-800">Detail Pengajuan Ujian Skripsi</h2>
     <a href="<?= base_url('pengajuan/form'); ?>" 
        class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-200">
@@ -10,71 +10,42 @@
 
   <?php if (!empty($pengajuan)): ?>
     <?php foreach ($pengajuan as $item): ?>
-      <div class="bg-white shadow-md rounded-lg p-4 mt-8 mb-4">
-        <div class="grid grid-cols-2 gap-4">
-          <div class="font-medium text-gray-700">Judul Skripsi</div>
-          <div class="text-gray-800 pl-2"><?= htmlspecialchars($item['judul_skripsi']); ?></div>
+        <div class="flex flex-col w-full p-6 mt-6 bg-white shadow-soft-xl rounded-2xl">
+            <h6 class="px-6 py-3 font-bold text-left uppercase align-middle text-xs text-slate-400 opacity-70">Detail Pengajuan</h6>
+            <div class="grid grid-cols-2 gap-4 px-6 py-4">
+                <div class="font-bold text-slate-400">Judul Skripsi</div>
+                <div class="text-slate-500"><?= htmlspecialchars($item['judul_skripsi']); ?></div>
 
-          <div class="font-medium text-gray-700">Status</div>
-          <div class="pl-2">
-            <span class="px-2 py-1 rounded-full 
-                <?= $item['status'] === 'Ditolak' ? 'bg-red-100 text-red-800' : 
-                ($item['status'] === 'Disetujui' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'); ?>">
-                <?= ucfirst($item['status']); ?>
-            </span>
-          </div>
+                <div class="font-bold text-slate-400">Status</div>
+                <div>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                        <?= $item['status'] === 'Ditolak' ? 'bg-red-100 text-red-600' : 
+                        ($item['status'] === 'Disetujui' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'); ?>">
+                        <?= ucfirst($item['status']); ?>
+                    </span>
+                </div>
 
-          <div class="font-medium text-gray-700">Lembar Pengesahan</div>
-          <div class="pl-2">
-            <?php if ($item['lembar_pengesahan']): ?>
-              <a href="<?= base_url('assets/file/' . $item['lembar_pengesahan']); ?>" 
-                 target="_blank" 
-                 class="text-blue-500 hover:underline">
-                 Lihat Lembar Pengesahan
-              </a>
-            <?php else: ?>
-              <span class="text-gray-500">Tidak Ada Lembar Pengesahan</span>
-            <?php endif; ?>
-          </div>
+                <div class="font-bold text-slate-400">Lembar Pengesahan</div>
+                <div>
+                    <?php if ($item['lembar_pengesahan']): ?>
+                        <a href="<?= base_url('assets/file/' . $item['lembar_pengesahan']); ?>" 
+                           target="_blank" 
+                           class="text-blue-500 hover:underline font-semibold">
+                           Lihat Lembar Pengesahan
+                        </a>
+                    <?php else: ?>
+                        <span class="text-slate-400">Tidak Ada Lembar Pengesahan</span>
+                    <?php endif; ?>
+                </div>
 
-          <div class="font-medium text-gray-700">Alasan Penolakan</div>
-          <div class="pl-2">
-            <?= $item['alasan_penolakan'] ? htmlspecialchars($item['alasan_penolakan']) : '-'; ?>
-          </div>
+                <div class="font-bold text-slate-400">Alasan Penolakan</div>
+                <div class="text-slate-500">
+                    <?= $item['alasan_penolakan'] ? htmlspecialchars($item['alasan_penolakan']) : '-'; ?>
+                </div>
+            </div>
         </div>
-      </div>
     <?php endforeach; ?>
-  <?php else: ?>
-    <p class="mt-4 text-gray-500">Anda belum mengajukan ujian skripsi.</p>
-  <?php endif; ?>
-</div>
-
-
-<h3>Jadwal Ujian Mahasiswa</h3>
-
-<?php if (empty($jadwal)): ?>
-    <p>Tidak ada jadwal ujian.</p>
 <?php else: ?>
-    <table border="1" cellpadding="5">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Judul Tugas Akhir</th>
-                <th>Tanggal</th>
-                <th>Waktu</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php foreach ($jadwal as $index => $item): ?>
-                <tr>
-                    <td><?= $index + 1; ?></td>
-                    <td><?= $item['thesis_title']; ?></td>
-                    <td><?= $item['tanggal']; ?></td>
-                    <td><?= $item['waktu_mulai']; ?> - <?= $item['waktu_selesai']; ?></td>
-                    <td><?= $item['status']; ?></td>
-                </tr>
-            <?php endforeach; ?>
-        </tbody>
-    </table>
+    <p class="mt-4 text-center text-slate-400">Anda belum mengajukan ujian skripsi.</p>
 <?php endif; ?>
+

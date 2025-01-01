@@ -5,9 +5,8 @@ class Dosen_model extends CI_Model {
 
     // Ambil semua dosen yang tersedia
     public function get_all_dosen() {
-        // Query untuk mengambil semua data dosen
-        $query = $this->db->get('dosen');
-        return $query->result();  // Mengembalikan data dosen
+       
+        return $this->db->get('dosen')->result_array(); 
     }
     public function getAllDosen() {
         $this->db->select('id, nama');

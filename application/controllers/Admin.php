@@ -8,7 +8,9 @@ class Admin extends CI_Controller {
         $this->load->library('form_validation');
         $this->load->model('Pengajuan_model'); 
         $this->load->model('Mahasiswa_model');
+        $this->load->model('Penjadwalan_model'); 
         $this->load->model('Dosen_model');
+        $this->load->model('Agenda_model');
         $this->load->library('session');  // Pastikan session di-load
         $this->load->helper('url');  
         if_logged_in();
@@ -57,7 +59,7 @@ class Admin extends CI_Controller {
     }
     public function data_dosen() {
         $data['dosen'] = $this->Dosen_model->get_all_dosen(); // Mengambil data dosen
-  
+        $data['dosen'] = $this->db->get('dosen')->result();
         $data['title'] = 'Dashboard Admin';
         
 
@@ -114,13 +116,13 @@ class Admin extends CI_Controller {
 
     // Menyetuju atau Menolak Pengajuan Ujian
     public function verifikasi_pengajuan($pengajuan_id) {
-        $this->load->model('JadwalUjian_model');
+      
         $this->load->model('Pengajuan_model');
+        $this->load->model('JadwalUjian_model');
     
         // Ambil data pengajuan berdasarkan ID
         $pengajuan = $this->Pengajuan_model->get_pengajuan_by_id($pengajuan_id);
     
-        // Periksa apakah pengajuan valid
         if ($pengajuan) {
             // Update status pengajuan menjadi 'Disetujui'
             $this->Pengajuan_model->update_status($pengajuan_id, 'Disetujui');
@@ -132,9 +134,8 @@ class Admin extends CI_Controller {
                 // Simpan jadwal rekomendasi ke database
                 $this->JadwalUjian_model->simpanJadwal($jadwal_rekomendasi);
     
-                // Redirect atau tampilkan hasil jadwal rekomendasi
                 $this->session->set_flashdata('success', 'Pengajuan disetujui dan jadwal ujian berhasil dibuat.');
-                redirect('admin/jadwal_ujian');
+                redirect('admin/pengajuan_ujian');
             } else {
                 $this->session->set_flashdata('error', 'Tidak ada jadwal yang tersedia untuk rekomendasi.');
                 redirect('admin/pengajuan_ujian');
@@ -144,6 +145,7 @@ class Admin extends CI_Controller {
             redirect('admin/pengajuan_ujian');
         }
     }
+    
     
 
     // Menolak pengajuan ujian dengan alasan
@@ -233,8 +235,83 @@ class Admin extends CI_Controller {
         }
         redirect('admin/data_mahasiswa'); // Redirect ke halaman data mahasiswa
     }
+    public function mahasiswa_disetujui() {
+        $this->load->model('Pengajuan_model');
+        $data['title'] = 'Mahsiswa Disetujui';
+        
+        // Ambil data mahasiswa yang pengajuannya disetujui
+        $data['mahasiswa_disetujui'] = $this->Pengajuan_model->getMahasiswaDisetujui();
     
+        // Load view dan kirim data ke halaman dashboard admin
+      
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar_admin', $data);
+        $this->load->view('templates/navbar', $data);
+        $this->load->view('admin/mahasiswa_disetujui', $data);
+        $this->load->view('templates/footer');
+    }
 
+
+    public function jadwalkan($mahasiswa_id) {
+        log_message('debug', 'Mahasiswa ID yang diterima: ' . $mahasiswa_id);
+    
+        $this->load->model('Penjadwalan_model');
+    
+        // Ambil data mahasiswa
+        $mahasiswa = $this->Penjadwalan_model->getMahasiswaById($mahasiswa_id);
+        if (!$mahasiswa) {
+            $this->session->set_flashdata('error', 'ID mahasiswa tidak valid.');
+            redirect('admin/mahasiswa_disetujui');
+            return;
+        }
+    
+        // Periksa keberadaan dosen pembimbing dan penguji
+        if (empty($mahasiswa['pembimbing_id']) || empty($mahasiswa['penguji1_id']) || empty($mahasiswa['penguji2_id'])) {
+            $this->session->set_flashdata('error', 'Data dosen pembimbing atau penguji tidak lengkap.');
+            redirect('admin/mahasiswa_disetujui');
+            return;
+        }
+    
+        // Tentukan rentang tanggal dan waktu sesi
+        $tanggal_awal = date('Y-m-d', strtotime('+1 days'));
+        $tanggal_akhir = date('Y-m-d', strtotime('+14 days'));
+        $waktu_sesi = [
+            ['waktu_mulai' => '08:00:00', 'waktu_selesai' => '08:40:00'],
+            ['waktu_mulai' => '09:00:00', 'waktu_selesai' => '09:40:00'],
+            ['waktu_mulai' => '10:00:00', 'waktu_selesai' => '10:40:00'],
+            ['waktu_mulai' => '11:00:00', 'waktu_selesai' => '11:40:00'],
+            ['waktu_mulai' => '13:00:00', 'waktu_selesai' => '13:40:00'],
+            ['waktu_mulai' => '14:00:00', 'waktu_selesai' => '14:40:00'],
+            ['waktu_mulai' => '15:00:00', 'waktu_selesai' => '15:40:00']
+        ];
+    
+        // Gunakan fungsi `cariJadwalYangTersedia` untuk mendapatkan rekomendasi jadwal
+        $rekomendasi_jadwal = $this->Penjadwalan_model->cariJadwalYangTersedia($tanggal_awal, $tanggal_akhir, $waktu_sesi, $mahasiswa);
+    
+        // Jika tidak ada rekomendasi jadwal, tampilkan pesan error
+        if (empty($rekomendasi_jadwal)) {
+            $this->session->set_flashdata('error', 'Tidak ada jadwal tersedia dalam rentang waktu yang ditentukan.');
+            redirect('admin/mahasiswa_disetujui');
+            return;
+        }
+    
+        // Simpan rekomendasi jadwal ke database
+        foreach ($rekomendasi_jadwal as $jadwal) {
+            $this->Penjadwalan_model->buatJadwal(
+                $mahasiswa_id,
+                $jadwal['tanggal'],
+                $jadwal['waktu_mulai'],
+                $jadwal['waktu_selesai'],
+                $mahasiswa['pembimbing_id'],
+                $mahasiswa['penguji1_id'],
+                $mahasiswa['penguji2_id']
+            );
+        }
+    
+        $this->session->set_flashdata('success', 'Jadwal berhasil dibuat.');
+        redirect('admin/mahasiswa_disetujui');
+    }
+    
     //DOSEN
     public function edit_dosen($id)
     {
@@ -268,5 +345,19 @@ class Admin extends CI_Controller {
         $this->Dosen_model->delete_dosen($id);
         redirect('admin/data_dosen');
     }
+    
+    public function agenda($id_dosen) {
+        echo "Step 1: ID Dosen = " . $id_dosen;
+        $agenda = $this->Agenda_model->get_agenda_by_dosen($id_dosen);
+        if (empty($agenda)) {
+            echo "Step 2: Agenda not found";
+        } else {
+            print_r($agenda);
+        }
+        die();
+    }
+    
+    
+    
     
 }

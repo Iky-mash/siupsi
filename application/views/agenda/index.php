@@ -57,8 +57,8 @@ $first_day_of_month = date('w', strtotime("$year-$month-01"));
                 </h6>
                 <a href="<?= base_url('agenda/add') ?>" class="inline-block bg-blue-500 text-white px-4 py-2 mt-4 rounded hover:bg-blue-600 transition">Tambah Agenda</a>
                 <div class="mt-4">
-                    <a href="?month=<?= $month - 1 ?>&year=<?= $year ?>" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Bulan Sebelumnya</a>
-                    <a href="?month=<?= $month + 1 ?>&year=<?= $year ?>" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Bulan Berikutnya</a>
+                <a href="?month=<?= $month == 1 ? 12 : $month - 1 ?>&year=<?= $month == 1 ? $year - 1 : $year ?>" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Bulan Sebelumnya</a>
+                <a href="?month=<?= $month == 12 ? 1 : $month + 1 ?>&year=<?= $month == 12 ? $year + 1 : $year ?>" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Bulan Berikutnya</a>
                 </div>
             </div>
             <div class="flex-auto px-6 py-4">

@@ -54,5 +54,13 @@ $route['admin'] = 'admin/index';  // Halaman utama admin
 $route['admin/assign_pembimbing'] = 'admin/assign_pembimbing'; 
 $route['mahasiswa/edit/(:num)'] = 'mahasiswa/edit/$1';
 $route['admin/pengajuan_ujian'] = 'admin/pengajuan_ujian'; // jika ingin langsung ke method 'pengajuan_ujian' di controller 'admin'
+$route['dosen/rekomendasi-jadwal'] = 'dosen/rekomendasi_jadwal';
+$route['dosen/setujui-jadwal/(:num)'] = 'dosen/setujui_jadwal/$1';
+$route['admin/agenda/(:num)'] = 'admin/agenda/$1';
+$route['admin/rekomendasi_jadwal/(:num)'] = 'admin/rekomendasi_jadwal/$1';
+// application/config/routes.php
+$route['admin/agenda/(:num)'] = 'admin/index/$1';
+$route['dosen/profil/(:num)'] = 'dosen/profil/$1';  // Menangkap ID dosen
+
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

@@ -5,19 +5,19 @@ class JadwalUjian_model extends CI_Model {
         // Load the Pengajuan_model
         $this->load->model('Pengajuan_model');
 
-    // Get the pengajuan data
-    $pengajuan = $this->Pengajuan_model->get_pengajuan_by_id($pengajuan_id);
+        // Get the pengajuan data
+        $pengajuan = $this->Pengajuan_model->get_pengajuan_by_id($pengajuan_id);
 
-    // **Verifikasi keberadaan data**
-    if (!isset($pengajuan['pembimbing_id']) ||
-        !isset($pengajuan['penguji1_id']) ||
-        !isset($pengajuan['penguji2_id'])) {
-        return ['error' => 'Data pengajuan tidak lengkap'];
-    }
+        // Verifikasi keberadaan data
+        if (!isset($pengajuan->pembimbing_id) || 
+            !isset($pengajuan->penguji1_id) || 
+            !isset($pengajuan->penguji2_id)) {
+            return ['error' => 'Data pengajuan tidak lengkap'];
+        }
 
-    $pembimbing_id = $pengajuan['pembimbing_id'];
-    $penguji1_id = $pengajuan['penguji1_id'];
-    $penguji2_id = $pengajuan['penguji2_id'];
+        $pembimbing_id = $pengajuan->pembimbing_id;
+        $penguji1_id = $pengajuan->penguji1_id;
+        $penguji2_id = $pengajuan->penguji2_id;
 
         // Inisialisasi slot waktu (contoh sederhana)
         $slot_waktu = [];
@@ -27,41 +27,26 @@ class JadwalUjian_model extends CI_Model {
             }
         }
 
-        // Cari slot waktu yang cocok
         $jadwal_rekomendasi = [];
         foreach ($slot_waktu as $hari => $jam_hari) {
             foreach ($jam_hari as $jam => $status) {
                 if ($status) {
-                    // Cek apakah semua dosen tersedia
-                    $dosen_tersedia = true;
-                    foreach ([pembimbing_id, penguji1_id, penguji2_id] as $dosen_id) {
-                        if (isset($jadwal_dosen[$dosen_id][$hari][$jam]) && $jadwal_dosen[$dosen_id][$hari][$jam]) {
-                            $dosen_tersedia = false;
-                            break;
-                        }
-                    }
-
-                    if ($dosen_tersedia) {
-                        // Buat objek jadwal
-                        $jadwal = [
-                            'tanggal' => $hari,
-                            'jam_mulai' => $jam,
-                            'jam_selesai' => $jam + 1, // Asumsi durasi 1 jam
-                            // ...
-                        ];
-                        $jadwal_rekomendasi[] = $jadwal;
-
-                        // Update jadwal dosen
-                        foreach ([pembimbing_id, penguji1_id, penguji2_id] as $dosen_id) {
-                            $jadwal_dosen[$dosen_id][$hari][$jam] = true;
-                        }
-                    }
+                    // Buat objek jadwal
+                    $jadwal = [
+                        'pengajuan_id' => $pengajuan_id,
+                        'tanggal' => $hari,
+                        'waktu_mulai' => $jam,
+                        'waktu_selesai' => $jam + 1,
+                        'status' => 'Tersedia',
+                    ];
+                    $jadwal_rekomendasi[] = $jadwal;
                 }
             }
         }
 
         return $jadwal_rekomendasi;
     }
+
     public function simpanJadwal($jadwal) {
         // Pastikan data jadwal hanya berisi kolom yang ada di tabel
         $data = [

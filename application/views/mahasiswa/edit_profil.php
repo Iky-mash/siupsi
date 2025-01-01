@@ -53,14 +53,14 @@
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200" 
                 value="<?= $mahasiswa['judul_skripsi']; ?>">
         </div>
-        <div>
+        <!-- <div>
             <label for="is_active" class="block text-sm font-medium text-gray-700">Status</label>
             <select id="is_active" name="is_active" 
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200">
                 <option value="1" <?= $mahasiswa['is_active'] ? 'selected' : ''; ?>>Active</option>
                 <option value="0" <?= !$mahasiswa['is_active'] ? 'selected' : ''; ?>>Inactive</option>
             </select>
-        </div>
+        </div> -->
         <div>
             <button type="submit" 
                 class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:ring focus:ring-indigo-200">
