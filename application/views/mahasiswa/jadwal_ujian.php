@@ -1,51 +1,65 @@
-<div class="min-h-screen flex flex-col px-6 py-6 mx-auto">
-  <!-- row 1 -->
-  <div class="container mx-auto flex justify-between items-center">
-    <h2 class="text-2xl font-semibold text-gray-800">Detail Pengajuan Ujian Skripsi</h2>
-    <a href="<?= base_url('pengajuan/form'); ?>" 
-       class="px-4 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition duration-200">
-      Ajukan Jadwal Baru
+<div class="max-w-6xl mx-auto">
+  <h1 class="text-3xl font-bold text-gray-800 mb-6">📅 Jadwal Ujian Saya</h1>
+
+  <div class="flex justify-end mb-6 space-x-4">
+    <a href="<?= site_url('pengajuan/form'); ?>" 
+       class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200 text-sm font-medium shadow">
+      + Ajukan Ujian
+    </a>
+
+    <a href="<?= site_url('pengajuan/riwayat'); ?>" 
+       class="inline-block bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-200 text-sm font-medium shadow">
+      📄 Lihat Riwayat Pengajuan
     </a>
   </div>
 
-  <?php if (!empty($pengajuan)): ?>
-    <?php foreach ($pengajuan as $item): ?>
-        <div class="flex flex-col w-full p-6 mt-6 bg-white shadow-soft-xl rounded-2xl">
-            <h6 class="px-6 py-3 font-bold text-left uppercase align-middle text-xs text-slate-400 opacity-70">Detail Pengajuan</h6>
-            <div class="grid grid-cols-2 gap-4 px-6 py-4">
-                <div class="font-bold text-slate-400">Judul Skripsi</div>
-                <div class="text-slate-500"><?= htmlspecialchars($item['judul_skripsi']); ?></div>
+  <?php if (!empty($jadwal)): ?>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <?php foreach ($jadwal as $row): ?>
+        <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-5 border-l-4 border-blue-500">
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-sm font-medium text-blue-600 uppercase"><?= $row->tipe_ujian ?></span>
+            <span class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full"><?= date('d M Y', strtotime($row->tanggal)) ?></span>
+          </div>
 
-                <div class="font-bold text-slate-400">Status</div>
-                <div>
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                        <?= $item['status'] === 'Ditolak' ? 'bg-red-100 text-red-600' : 
-                        ($item['status'] === 'Disetujui' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'); ?>">
-                        <?= ucfirst($item['status']); ?>
-                    </span>
-                </div>
+          <h2 class="text-lg font-semibold text-gray-800 mb-2"><?= $row->judul_skripsi ?></h2>
 
-                <div class="font-bold text-slate-400">Lembar Pengesahan</div>
-                <div>
-                    <?php if ($item['lembar_pengesahan']): ?>
-                        <a href="<?= base_url('assets/file/' . $item['lembar_pengesahan']); ?>" 
-                           target="_blank" 
-                           class="text-blue-500 hover:underline font-semibold">
-                           Lihat Lembar Pengesahan
-                        </a>
-                    <?php else: ?>
-                        <span class="text-slate-400">Tidak Ada Lembar Pengesahan</span>
-                    <?php endif; ?>
-                </div>
+          <div class="text-sm text-gray-600 mb-2">
+            <p><strong>🕒 Waktu:</strong> <?= $row->slot_waktu ?></p>
+            <p><strong>🏛️ Ruangan:</strong> <?= $row->nama_ruangan ?></p>
+          </div>
 
-                <div class="font-bold text-slate-400">Alasan Penolakan</div>
-                <div class="text-slate-500">
-                    <?= $item['alasan_penolakan'] ? htmlspecialchars($item['alasan_penolakan']) : '-'; ?>
-                </div>
-            </div>
+          <div class="text-sm text-gray-700 mb-2">
+            <p><strong>👨‍🏫 Pembimbing:</strong> <?= $row->pembimbing_nama ?></p>
+            <p><strong>👩‍⚖️ Penguji 1:</strong> <?= $row->penguji1_nama ?></p>
+            <p><strong>👩‍⚖️ Penguji 2:</strong> <?= $row->penguji2_nama ?></p>
+          </div>
+
+          <div class="mt-3 flex justify-between items-center">
+            <?php
+              $status = strtolower($row->status_konfirmasi);
+              $statusClass = match ($status) {
+                'disetujui' => 'bg-green-100 text-green-700',
+                'ditolak'   => 'bg-red-100 text-red-700',
+                default     => 'bg-yellow-100 text-yellow-700'
+              };
+            ?>
+            <span class="inline-block px-3 py-1 text-xs font-medium rounded-full <?= $statusClass ?>">
+              <?= ucfirst($row->status_konfirmasi) ?>
+            </span>
+           <!-- Contoh dalam tabel daftar jadwal -->
+<a href="<?= site_url('mahasiswa/cetak_pdf/' . $row->id); ?>"
+   class="text-sm bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition"
+   target="_blank">
+   🖨️ Cetak PDF
+</a>
+          </div>
         </div>
-    <?php endforeach; ?>
-<?php else: ?>
-    <p class="mt-4 text-center text-slate-400">Anda belum mengajukan ujian skripsi.</p>
-<?php endif; ?>
-
+      <?php endforeach; ?>
+    </div>
+  <?php else: ?>
+    <div class="bg-white p-6 rounded-lg shadow text-center text-gray-600">
+      Anda belum memiliki jadwal ujian.
+    </div>
+  <?php endif; ?>
+</div>

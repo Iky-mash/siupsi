@@ -3,75 +3,36 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Pengajuan_model extends CI_Model {
 
+    // Fungsi untuk menyimpan data pengajuan
     public function insert($data) {
-        $this->db->insert('pengajuan_ujian', $data);
+        return $this->db->insert('pengajuan_ujian_prioritas', $data);
     }
 
-    public function get_all() {
-        return $this->db->get('pengajuan_ujian')->result_array();
-    }
-
-    public function get_by_mahasiswa($mahasiswa_id) {
-        return $this->db->get_where('pengajuan_ujian', ['mahasiswa_id' => $mahasiswa_id])->result_array();
-    }
-
-    public function update_status($id, $status, $alasan_penolakan = null) {
-        $data = ['status' => $status];
-        if ($status == 'Ditolak') {
-            $data['alasan_penolakan'] = $alasan_penolakan;
-        }
-        $this->db->where('id', $id);
-        $this->db->update('pengajuan_ujian', $data);
-    }
-    public function get_pengajuan_ujian() {
-        $this->db->select('pengajuan_ujian.*, mahasiswa.nama AS nama_mahasiswa, mahasiswa.nim');
-        $this->db->from('pengajuan_ujian');
-        $this->db->join('mahasiswa', 'mahasiswa.id = pengajuan_ujian.mahasiswa_id');
-        $this->db->where('pengajuan_ujian.status', 'Diajukan');
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-
-    // Mendapatkan pengajuan ujian berdasarkan ID
-    public function get_pengajuan_by_id($id)
-    {
-        $this->db->select('pengajuan_ujian.*, mahasiswa.pembimbing_id, mahasiswa.penguji1_id, mahasiswa.penguji2_id');
-        $this->db->from('pengajuan_ujian');
-        $this->db->join('mahasiswa', 'mahasiswa.id = pengajuan_ujian.mahasiswa_id');
-        $this->db->where('pengajuan_ujian.id', $id);
-        return $this->db->get()->row();
-    }
+    // Fungsi untuk mendapatkan pengajuan berdasarkan mahasiswa_id
+  
     public function get_pengajuan_by_mahasiswa($mahasiswa_id) {
-        $this->db->where('mahasiswa_id', $mahasiswa_id);
-        $query = $this->db->get('pengajuan_ujian');
-        return $query->result_array();
+        return $this->db->get_where('pengajuan_ujian_prioritas', ['mahasiswa_id' => $mahasiswa_id])->result();
     }
-    // Mengecek apakah mahasiswa sudah melakukan seminar proposal
-    public function cek_status_pengajuan($mahasiswa_id) {
-        $this->db->select('status');
-        $this->db->from('pengajuan_ujian');
-        $this->db->where('mahasiswa_id', $mahasiswa_id);
-        $this->db->where('status', 'Diajukan');
-        $query = $this->db->get();
-        return $query->num_rows() > 0;
+    
+    public function insert_konfirmasi($data) {
+        return $this->db->insert('konfirmasi_pengajuan', $data);
     }
-
-    // Mengupdate status pengajuan ujian
-    public function update_status_pengajuan($id, $status, $alasan = '') {
-        $data = array(
-            'status' => $status,
-            'alasan_penolakan' => $alasan,
-            'updated_at' => date('Y-m-d H:i:s')
-        );
-        $this->db->where('id', $id);
-        return $this->db->update('pengajuan_ujian', $data);
-    }
-    public function getMahasiswaDisetujui() {
-        $this->db->select('pengajuan_ujian.id AS pengajuan_id, mahasiswa.id AS mahasiswa_id, mahasiswa.nama, mahasiswa.nim, mahasiswa.judul_skripsi, dosen.nama AS pembimbing');
-        $this->db->from('pengajuan_ujian');
-        $this->db->join('mahasiswa', 'pengajuan_ujian.mahasiswa_id = mahasiswa.id');
-        $this->db->join('dosen', 'mahasiswa.pembimbing_id = dosen.id');
-        $this->db->where('pengajuan_ujian.status', 'Disetujui');
+    public function get_all_pengajuan()
+    {
+        $this->db->select('pengajuan_ujian_prioritas.*, mahasiswa.nama, mahasiswa.nim, mahasiswa.fakultas, mahasiswa.prodi');
+        $this->db->from('pengajuan_ujian_prioritas');
+        $this->db->join('mahasiswa', 'pengajuan_ujian_prioritas.mahasiswa_id = mahasiswa.id');
         return $this->db->get()->result_array();
     }
+    public function cek_pengajuan_aktif($mahasiswa_id, $tipe_ujian)
+{
+    $this->db->where('mahasiswa_id', $mahasiswa_id);
+    $this->db->where('tipe_ujian', $tipe_ujian);
+    $this->db->where('status', 'draft');
+    return $this->db->get('pengajuan_ujian_prioritas')->row();
+}
+public function get_pengajuan_by_id($id) {
+    return $this->db->get_where('pengajuan_ujian_prioritas', ['id' => $id])->row_array();
+}
+
 }

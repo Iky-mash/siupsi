@@ -2,11 +2,15 @@
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Dosen_model extends CI_Model {
+    private $table = 'dosen'; 
 
     // Ambil semua dosen yang tersedia
     public function get_all_dosen() {
        
         return $this->db->get('dosen')->result_array(); 
+    }
+    public function tambah_dosen($data) {
+        return $this->db->insert($this->table, $data);
     }
     public function getAllDosen() {
         $this->db->select('id, nama');

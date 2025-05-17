@@ -11,6 +11,9 @@
             <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
             <div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent flex items-center justify-between">
                     <h6 class="text-xs font-bold uppercase text-slate-400 opacity-70">Data Dosen</h6>
+                    <a href="<?= base_url('admin/tambah_dosen'); ?>" class="px-4 py-2 text-sm font-semibold text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition duration-200">
+                    Tambah Dosen
+                </a>
                 </div>
                 <div class="flex-auto px-0 pt-0 pb-2">
                     <div class="p-0 overflow-x-auto">

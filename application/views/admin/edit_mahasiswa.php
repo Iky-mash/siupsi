@@ -35,17 +35,17 @@ if (!isset($mahasiswa)) {
 
             <div class="flex items-center mb-4">
                 <label for="fakultas" class="font-bold text-slate-600 mr-2 w-32">Fakultas:</label>
-                <input type="text" name="fakultas" id="fakultas" value="<?= isset($mahasiswa->fakultas) ? htmlspecialchars($mahasiswa->fakultas) : '' ?>" class="border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 w-full" required>
+                <input type="text" name="fakultas" id="fakultas" value="<?= isset($mahasiswa->fakultas) ? htmlspecialchars($mahasiswa->fakultas) : '' ?>" class="border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 w-full" >
             </div>
 
             <div class="flex items-center mb-4">
                 <label for="prodi" class="font-bold text-slate-600 mr-2 w-32">Prodi:</label>
-                <input type="text" name="prodi" id="prodi" value="<?= isset($mahasiswa->prodi) ? htmlspecialchars($mahasiswa->prodi) : '' ?>" class="border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 w-full" required>
+                <input type="text" name="prodi" id="prodi" value="<?= isset($mahasiswa->prodi) ? htmlspecialchars($mahasiswa->prodi) : '' ?>" class="border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 w-full" >
             </div>
 
             <div class="flex items-center mb-4">
                 <label for="judul_skripsi" class="font-bold text-slate-600 mr-2 w-32">Judul Skripsi:</label>
-                <input type="text" name="judul_skripsi" id="judul_skripsi" value="<?= isset($mahasiswa->judul_skripsi) ? htmlspecialchars($mahasiswa->judul_skripsi) : '' ?>" class="border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 w-full" required>
+                <input type="text" name="judul_skripsi" id="judul_skripsi" value="<?= isset($mahasiswa->judul_skripsi) ? htmlspecialchars($mahasiswa->judul_skripsi) : '' ?>" class="border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 w-full" >
             </div>
 
             <div class="flex items-center mb-4">

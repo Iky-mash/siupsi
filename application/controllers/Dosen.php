@@ -10,9 +10,14 @@ class Dosen extends CI_Controller{
         $this->load->library('session');  // Pastikan session di-load
         $this->load->helper('url'); 
         $this->load->model('Dosen_model');
-        $this->load->model('JadwalUjian_model');      // Helper untuk redirect
+        $this->load->model('JadwalUjian_model');  
+        $this->load->model('Penjadwalan_model');    
         if_logged_in();
-        check_role(['Dosen']);
+        check_role(['Dosen', 'Admin']);
+         // Pastikan session id_dosen tersedia
+         if (!$this->session->userdata('id_dosen')) {
+            redirect('auth');
+        }
     }
     public function index(){
        $data['title'] = 'Dashboard Dosen';
@@ -70,8 +75,10 @@ class Dosen extends CI_Controller{
     }
     public function jadwal_ujian() {
         $data['title'] = 'Jadwal Ujian';
-    
-        // Ambil data user yang sedang login
+        $id_dosen = $this->session->userdata('id_dosen');
+        $data['jadwal_ujian'] = $this->Penjadwalan_model->get_jadwal_by_dosen($id_dosen);
+
+   
     
         // Tampilkan ke view
         $this->load->view('templates/header', $data);
@@ -80,16 +87,21 @@ class Dosen extends CI_Controller{
         $this->load->view('dosen/jadwal_ujian', $data);
         $this->load->view('templates/footer');
     }
-    public function profil($id) {
+    public function profil($id = null)
+    {
+        $id = $this->session->userdata('id'); // pastikan session ini diset saat login
+
+        if (!$id) {
+            show_error('ID tidak ditemukan di session', 500);
+        }
+    
         $data['title'] = 'Profil Dosen';
         $data['dosen'] = $this->Dosen_model->get_dosen_by_id($id);
-
-        // Jika ID tidak ditemukan, tampilkan error
+    
         if (!$data['dosen']) {
             show_404();
         }
     
-        // Tampilkan ke view
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar_dosen', $data);
         $this->load->view('templates/navbar', $data);
@@ -97,7 +109,27 @@ class Dosen extends CI_Controller{
         $this->load->view('templates/footer');
     }
     
-    
+    public function tambah() {
+        $this->load->view('tambah_dosen'); // Menampilkan form tambah dosen
+    }
+
+    public function simpan() {
+        $data = [
+            'nama' => $this->input->post('nama', TRUE),
+            'email' => $this->input->post('email', TRUE),
+            'password' => password_hash($this->input->post('password'), PASSWORD_DEFAULT),
+            'nip' => $this->input->post('nip', TRUE),
+            'role_id' => 2,
+            'date_created' => date('Y-m-d H:i:s')
+        ];
+
+        if ($this->Dosen_model->tambah_dosen($data)) {
+            $this->session->set_flashdata('success', 'Data dosen berhasil ditambahkan.');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal menambahkan data dosen.');
+        }
+        redirect('admin/data_dosen');
+    }
     public function add_dosen() {
         $data = [
             'nama' => $this->input->post('nama'),
@@ -109,14 +141,14 @@ class Dosen extends CI_Controller{
         $this->db->insert('dosen', $data);
         echo json_encode(['message' => 'Dosen berhasil ditambahkan']);
     }
-    public function rekomendasiJadwal($mahasiswa_id) {
+    public function rekomendasiJadwal() {
         $this->load->model('Penjadwalan_model');
         $data['title'] = 'Rekomendasi Jadwal';
     
         // Ambil rekomendasi jadwal dari database
-        $data['rekomendasi_jadwal'] = $this->Penjadwalan_model->getRekomendasiJadwal($mahasiswa_id);
+        // $data['rekomendasi_jadwal'] = $this->Penjadwalan_model->getRekomendasiJadwal($mahasiswa_id);
     
-        $data['mahasiswa'] = $this->Penjadwalan_model->getMahasiswaById($mahasiswa_id);
+        // $data['mahasiswa'] = $this->Penjadwalan_model->getMahasiswaById($mahasiswa_id);
     
         // Load view untuk halaman dosen
         $this->load->view('templates/header', $data);

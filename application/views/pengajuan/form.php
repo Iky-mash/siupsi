@@ -1,40 +1,38 @@
-<div class="container mx-auto mt-8">
-    <h2 class="text-2xl font-semibold text-gray-800">Pengajuan Ujian Skripsi</h2>
-
-    <!-- Flash Message -->
-    <?php if ($this->session->flashdata('message')): ?>
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mt-4">
-            <?= $this->session->flashdata('message'); ?>
-        </div>
-    <?php endif; ?>
-
-    <!-- Form Pengajuan -->
-    <?= form_open_multipart('pengajuan/submit', ['class' => 'mt-6']); ?>
-        <div class="mb-4">
-            <label for="judul_skripsi" class="block text-gray-700 font-medium mb-2">Judul Skripsi</label>
-            <input 
-                type="text" 
-                id="judul_skripsi" 
-                name="judul_skripsi" 
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none" 
-                required>
+<!-- form_pengajuan.php -->
+<div class="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-10">
+    <h1 class="text-2xl font-semibold text-gray-700 mb-4">Form Pengajuan Ujian</h1>
+    
+    <form action="<?php echo site_url('Pengajuan/simpan'); ?>" method="post" enctype="multipart/form-data" class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Judul Skripsi</label>
+            <input type="text" name="judul_skripsi" placeholder="Judul Skripsi" required
+                   class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
 
-        <div class="mb-4">
-            <label for="lembar_pengesahan" class="block text-gray-700 font-medium mb-2">Lembar Pengesahan (PDF)</label>
-            <input 
-                type="file" 
-                id="lembar_pengesahan" 
-                name="lembar_pengesahan" 
-                class="block w-full text-sm text-gray-500 border border-gray-300 rounded-lg cursor-pointer focus:ring-2 focus:ring-blue-500 focus:outline-none" 
-                accept="application/pdf" 
-                required>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Tipe Ujian</label>
+            <select name="tipe_ujian" required
+                    class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500">
+                <option value="Sempro">Sempro</option>
+                <option value="Semhas">Semhas</option>
+            </select>
         </div>
 
-        <button 
-            type="submit" 
-            class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition duration-200">
-            Ajukan
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Upload Lembar Bimbingan</label>
+            <input type="file" name="file_lembar_bimbingan" required
+                   class="mt-1 block w-full text-sm text-gray-700 border border-gray-300 rounded-md p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-blue-100 file:text-blue-700 hover:file:bg-blue-200">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium text-gray-700">Upload Lembar Pengesahan</label>
+            <input type="file" name="file_lembar_pengesahan" required
+                   class="mt-1 block w-full text-sm text-gray-700 border border-gray-300 rounded-md p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-green-100 file:text-green-700 hover:file:bg-green-200">
+        </div>
+
+        <button type="submit"
+                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200">
+            Simpan
         </button>
-    <?= form_close(); ?>
+    </form>
 </div>

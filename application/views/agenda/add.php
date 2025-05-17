@@ -1,32 +1,120 @@
-<div class="flex flex-wrap -mx-3">
-    <div class="flex-none w-full max-w-full px-3">
-        <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
-            <div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent">
-                <h6 class="text-2xl font-semibold text-blue-900">Tambah Agenda</h6>
-            </div>
-            <div class="flex-auto px-6 pt-6 pb-2">
-                <form action="<?= base_url('agenda/store') ?>" method="post" class="space-y-4">
-                    <div>
-                        <label for="tanggal" class="block text-sm font-medium text-slate-700">Tanggal</label>
-                        <input type="date" name="tanggal" required class="block w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
-                    </div>
-                    <div>
-                        <label for="waktu_mulai" class="block text-sm font-medium text-slate-700">Waktu Mulai</label>
-                        <input type="time" name="waktu_mulai" required class="block w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
-                    </div>
-                    <div>
-                        <label for="waktu_selesai" class="block text-sm font-medium text-slate-700">Waktu Selesai</label>
-                        <input type="time" name="waktu_selesai" required class="block w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
-                    </div>
-                    <div>
-                        <label for="keterangan" class="block text-sm font-medium text-slate-700">Keterangan</label>
-                        <input type="text" name="keterangan" class="block w-full mt-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
-                    </div>
-                    <div>
-                        <button type="submit" class="inline-block px-6 py-2 text-sm font-medium text-white bg-blue-500 rounded shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Simpan</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda Dosen</title>
+
+    <!-- FullCalendar CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.css">
+
+    <!-- jQuery & FullCalendar -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/3.10.2/fullcalendar.min.js"></script>
+
+    <style>
+        #slot-container {
+            display: none;
+            margin-bottom: 20px;
+        }
+        #slot-list label {
+            display: block;
+            margin: 5px 0;
+        }
+        #calendar {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Tambah Agenda Dosen</h2>
+
+    <!-- Slot muncul di atas kalender -->
+    <div id="slot-container">
+        <h3>Slot Waktu Tersedia</h3>
+        <form id="slot-form">
+            <input type="hidden" id="selected-date" name="tanggal">
+            <div id="slot-list"></div>
+            <button type="submit">Simpan</button>
+        </form>
     </div>
-</div>
+
+    <!-- Kalender ada di bawah slot -->
+    <div id="calendar"></div>
+
+    <script>
+    $(document).ready(function() {
+        $('#calendar').fullCalendar({
+            selectable: true,
+            select: function(start) {
+                let selectedDate = start.format("YYYY-MM-DD");
+                let dayOfWeek = start.day(); // 0 = Minggu, 1 = Senin, ..., 6 = Sabtu
+                
+                if (dayOfWeek === 0 || dayOfWeek === 6) {
+                    alert("❌ Hanya bisa memilih hari Senin-Jumat!");
+                    return;
+                }
+
+                $("#selected-date").val(selectedDate);
+                $("#slot-container").show();
+                loadSlots();
+            }
+        });
+
+        function loadSlots() {
+            let slots = [
+                { id: 1, waktu: "08:45-10:25" },
+                { id: 2, waktu: "10:30-12:10" },
+                { id: 3, waktu: "13:00-14:40" },
+                { id: 4, waktu: "14:45-16:25" }
+            ];
+
+            let slotList = $("#slot-list");
+            slotList.empty();
+            
+            slots.forEach(slot => {
+                slotList.append(`
+                    <label>
+                        <input type="checkbox" name="slot_waktu[]" value="${slot.waktu}">
+                        ${slot.waktu}
+                    </label>
+                `);
+            });
+        }
+
+        $("#slot-form").on("submit", function(e) {
+            e.preventDefault();
+            
+            let selectedDate = $("#selected-date").val();
+            let selectedSlots = [];
+            
+            $("input[name='slot_waktu[]']:checked").each(function() {
+                selectedSlots.push($(this).val());
+            });
+
+            if (selectedSlots.length === 0) {
+                alert("❌ Pilih minimal 1 slot waktu!");
+                return;
+            }
+
+            $.ajax({
+                url: "http://localhost/siupsi/agenda/simpan_slot",
+                type: "POST",
+                data: { 
+                    tanggal: selectedDate, 
+                    slot_waktu: selectedSlots.join(',') // Ubah array menjadi string
+                },
+                success: function(response) {
+                    alert("✅ Slot berhasil disimpan!");
+                    $("#slot-container").hide();
+                },
+                error: function(xhr, status, error) {
+                    alert("❌ Gagal menyimpan data: " + error);
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>

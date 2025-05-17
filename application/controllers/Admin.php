@@ -13,6 +13,8 @@ class Admin extends CI_Controller {
         $this->load->model('Agenda_model');
         $this->load->library('session');  // Pastikan session di-load
         $this->load->helper('url');  
+        $this->load->model('Pekan_model');
+        $this->load->model('Ruangan_model');//ruangan
         if_logged_in();
         check_role(['Admin']); 
     }
@@ -103,7 +105,7 @@ class Admin extends CI_Controller {
     
       // Menampilkan pengajuan ujian skripsi
       public function pengajuan_ujian() {
-        $data['pengajuan'] = $this->Pengajuan_model->get_pengajuan_ujian();
+        $data['pengajuan'] = $this->Pengajuan_model->get_all_pengajuan();
         $data['title'] = 'Dashboard Admin';
         
 
@@ -155,6 +157,29 @@ class Admin extends CI_Controller {
         $this->session->set_flashdata('error', 'Pengajuan ujian ditolak.');
         redirect('admin/pengajuan_ujian');
     }
+    public function importdata_mhs() {
+       
+        $data['title'] = 'Import Data Mahasiswa';
+        
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar_admin', $data);
+        $this->load->view('templates/navbar', $data);
+        $this->load->view('admin/importdata_mhs', $data);
+        $this->load->view('templates/footer');
+    }
+    public function tambah_dosen() {
+       
+        $data['title'] = 'Tambah Dosen';
+        
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar_admin', $data);
+        $this->load->view('templates/navbar', $data);
+        $this->load->view('admin/tambah_dosen', $data);
+        $this->load->view('templates/footer');
+    }
+
       // Method untuk menampilkan halaman edit mahasiswa
       public function edit_mahasiswa($id) {
         $data['title'] = 'Dashboard Admin';
@@ -273,8 +298,8 @@ class Admin extends CI_Controller {
         }
     
         // Tentukan rentang tanggal dan waktu sesi
-        $tanggal_awal = date('Y-m-d', strtotime('+1 days'));
-        $tanggal_akhir = date('Y-m-d', strtotime('+14 days'));
+        $tanggal_awal = date('Y-m-d', strtotime('+4 days'));
+        $tanggal_akhir = date('Y-m-d', strtotime('+21 days'));
         $waktu_sesi = [
             ['waktu_mulai' => '08:00:00', 'waktu_selesai' => '08:40:00'],
             ['waktu_mulai' => '09:00:00', 'waktu_selesai' => '09:40:00'],
@@ -311,7 +336,55 @@ class Admin extends CI_Controller {
         $this->session->set_flashdata('success', 'Jadwal berhasil dibuat.');
         redirect('admin/mahasiswa_disetujui');
     }
+
+    public function jadwalAdmin() {
+        $this->load->model('Penjadwalan_model');
     
+        $data['jadwal_ujian'] = $this->Penjadwalan_model->get_all_jadwal();
+    
+        
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar_admin', $data);
+        $this->load->view('templates/navbar', $data);
+        $this->load->view('admin/rekomendasi', $data);
+        $this->load->view('templates/footer');
+    }
+    
+
+    //Pekan sempro dan semhas
+    public function jadwal() {
+        $data['sempro'] = $this->Pekan_model->get_jadwal('sempro');
+        $data['semhas'] = $this->Pekan_model->get_jadwal('semhas');
+        $data['ruangan_sempro'] = $this->Ruangan_model->get_by_tipe('sempro');
+        $data['ruangan_semhas'] = $this->Ruangan_model->get_by_tipe('semhas');
+    
+        
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar_admin', $data);
+        $this->load->view('templates/navbar', $data);
+        $this->load->view('admin/pekan', $data);
+        $this->load->view('templates/footer');
+    }
+
+    public function update_jadwal() {
+        $jenis = $this->input->post('jenis');
+        $tanggal_mulai = $this->input->post('tanggal_mulai');
+        $tanggal_selesai = $this->input->post('tanggal_selesai');
+
+        if ($tanggal_mulai && $tanggal_selesai) {
+            $data = [
+                'tanggal_mulai' => $tanggal_mulai,
+                'tanggal_selesai' => $tanggal_selesai
+            ];
+            $this->Pekan_model->update_jadwal($jenis, $data);
+            $this->session->set_flashdata('success', 'Jadwal berhasil diperbarui!');
+        } else {
+            $this->session->set_flashdata('error', 'Tanggal harus diisi!');
+        }
+        
+        redirect('admin/jadwal');
+    }
+
     //DOSEN
     public function edit_dosen($id)
     {

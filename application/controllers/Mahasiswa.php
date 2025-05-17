@@ -8,7 +8,9 @@ class Mahasiswa extends CI_Controller{
         $this->load->library('form_validation');
         $this->load->model('Mahasiswa_model');
         $this->load->library('session');  // Pastikan session di-load
-        $this->load->helper('url');       // Helper untuk redirect
+        $this->load->helper('url');   
+        $this->load->model('Pengajuan_model'); 
+        $this->load->model('Penjadwalan_model');   // Helper untuk redirect
         if_logged_in();
         check_role(['Mahasiswa']);
     }
@@ -100,16 +102,18 @@ class Mahasiswa extends CI_Controller{
 
     public function jadwal_ujian() {
         $data['title'] = 'Dashboard Mahasiswa';
-        // Ambil data user dari tabel 'user'
-        $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-        // Ambil data mahasiswa berdasarkan user (email atau id)
-        $data['mahasiswa'] = $this->db->get_where('mahasiswa', ['email' => $this->session->userdata('email')])->row_array();
-        $mahasiswa_id = $this->session->userdata('id'); // Pastikan Anda sudah menyimpan ID mahasiswa di session
-        $this->load->model('Pengajuan_model');
+        $mahasiswa_id = $this->session->userdata('id');
         $data['pengajuan'] = $this->Pengajuan_model->get_pengajuan_by_mahasiswa($mahasiswa_id);
-        $this->load->model('JadwalUjian_model');
-        $mahasiswaId = $this->session->userdata('mahasiswa_id');
-        $data['jadwal'] = $this->JadwalUjian_model->getJadwalByMahasiswa($mahasiswaId); 
+        $data['jadwal'] = $this->Penjadwalan_model->get_jadwal_by_mahasiswa($mahasiswa_id);
+        // $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
+       
+        // $data['mahasiswa'] = $this->db->get_where('mahasiswa', ['email' => $this->session->userdata('email')])->row_array();
+        // $mahasiswa_id = $this->session->userdata('id'); 
+        // $this->load->model('Pengajuan_model');
+        // $data['pengajuan'] = $this->Pengajuan_model->get_pengajuan_by_mahasiswa($mahasiswa_id);
+        // $this->load->model('JadwalUjian_model');
+        // $mahasiswaId = $this->session->userdata('mahasiswa_id');
+        // $data['jadwal'] = $this->JadwalUjian_model->getJadwalByMahasiswa($mahasiswaId); 
         
         // Kirimkan data ke view
         $this->load->view('templates/header', $data);
@@ -118,6 +122,26 @@ class Mahasiswa extends CI_Controller{
         $this->load->view('mahasiswa/jadwal_ujian', $data);
         $this->load->view('templates/footer');
     }
+
+   // Controller: application/controllers/Mahasiswa.php
+public function cetak_pdf($id_jadwal)
+{
+    $this->load->model('Penjadwalan_model');
+    $this->load->library('pdf');
+
+    $data['jadwal'] = $this->Penjadwalan_model->get_jadwal_by_id($id_jadwal);
+    $data['title'] = 'Jadwal Ujian Mahasiswa';
+
+    $html = $this->load->view('mahasiswa/cetak_jadwal_pdf', $data, true);
+
+    $this->pdf->loadHtml($html);
+    $this->pdf->setPaper('A4', 'portrait');
+    $this->pdf->render();
+    $this->pdf->stream('jadwal_ujian_' . $id_jadwal . '.pdf', ['Attachment' => false]);
+}
+
+    
+
     public function progres() {
         $data['title'] = 'Dashboard Mahasiswa';
         
