@@ -1,7 +1,4 @@
-
 <div class="min-h-screen flex flex-col px-6 py-6 mx-auto">
-   
-
     <?php if ($this->session->flashdata('success')): ?>
         <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 shadow-md rounded-md" role="alert">
             <div class="flex">
@@ -36,7 +33,54 @@
     <?php if (!empty($jadwal_ujian)) : ?>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <?php foreach ($jadwal_ujian as $jadwal) : ?>
-                <div class="bg-white shadow-xl rounded-lg overflow-hidden flex flex-col transform hover:scale-105 transition-transform duration-300 ease-in-out">
+                <?php // Add 'relative' class to the main card div for absolute positioning of the reschedule button ?>
+                <div class="bg-white shadow-xl rounded-lg overflow-hidden flex flex-col transform hover:scale-105 transition-transform duration-300 ease-in-out relative">
+                    
+                    <?php
+                    // Prepare variables needed for conditions
+                    $is_pembimbing = ($jadwal['pembimbing_id'] == $current_dosen_id);
+                    
+                    $waktu_ujian_telah_lewat = false; 
+                    $slot_waktu = $jadwal['slot_waktu']; 
+                    $tanggal_ujian = $jadwal['tanggal']; 
+
+                    if (strpos($slot_waktu, '-') !== false) {
+                        $times = explode('-', $slot_waktu);
+                        $end_time_str = trim($times[1]); 
+                        $exam_end_datetime_str = $tanggal_ujian . ' ' . $end_time_str . ':00';
+                        $exam_end_timestamp = strtotime($exam_end_datetime_str);
+                        $current_timestamp = time(); 
+                        if ($exam_end_timestamp !== false) {
+                            $waktu_ujian_telah_lewat = ($current_timestamp > $exam_end_timestamp);
+                        }
+                    }
+                    
+                    $status_mahasiswa_awal = false;
+                    $tipe_ujian_lower = strtolower($jadwal['tipe_ujian']);
+
+                    if ($tipe_ujian_lower == 'proposal' || $tipe_ujian_lower == 'sempro') {
+                        if (isset($jadwal['status_sempro']) && $jadwal['status_sempro'] == 'Belum Mengajukan') {
+                            $status_mahasiswa_awal = true;
+                        }
+                    } elseif ($tipe_ujian_lower == 'hasil' || $tipe_ujian_lower == 'semhas' || $tipe_ujian_lower == 'skripsi' || $tipe_ujian_lower == 'sidang') {
+                        if (isset($jadwal['status_semhas']) && $jadwal['status_semhas'] == 'Belum Mengajukan') {
+                            $status_mahasiswa_awal = true;
+                        }
+                    }
+                    ?>
+
+                    <?php if ($is_pembimbing && !$waktu_ujian_telah_lewat && $status_mahasiswa_awal) : ?>
+                        <a href="<?= site_url('dosen/form_reschedule_ujian/' . $jadwal['id']); ?>" 
+                           class="absolute top-3 right-3 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold py-1 px-3 rounded-md shadow transition duration-150 ease-in-out z-10"
+                           title="Reschedule Ujian">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M12 15h.01M12 12h.01" />
+                            </svg>
+                            Reschedule
+                        </a>
+                    <?php endif; ?>
+
                     <div class="p-6 flex-grow">
                         <h5 class="text-xl font-semibold text-indigo-700 mb-1"><?= htmlspecialchars($jadwal['nama_mahasiswa']); ?></h5>
                         <h6 class="text-sm text-gray-500 mb-3">
@@ -69,27 +113,7 @@
                     </div>
                     
                     <div class="px-6 pt-4 pb-6 border-t border-gray-200 mt-auto">
-                        <?php
-                        $is_pembimbing = ($jadwal['pembimbing_id'] == $current_dosen_id);
-                        $ujian_telah_lewat = (strtotime($jadwal['tanggal']) < strtotime(date('Y-m-d')));
-                        
-                        $status_mahasiswa_awal = false;
-                        $tipe_ujian_lower = strtolower($jadwal['tipe_ujian']);
-
-                        if ($tipe_ujian_lower == 'proposal' || $tipe_ujian_lower == 'sempro') {
-                            if (isset($jadwal['status_sempro']) && $jadwal['status_sempro'] == 'Belum Mengajukan') {
-                                $status_mahasiswa_awal = true;
-                            }
-                        } elseif ($tipe_ujian_lower == 'hasil' || $tipe_ujian_lower == 'semhas' || $tipe_ujian_lower == 'skripsi' || $tipe_ujian_lower == 'sidang') {
-                            if (isset($jadwal['status_semhas']) && $jadwal['status_semhas'] == 'Belum Mengajukan') {
-                                $status_mahasiswa_awal = true;
-                            }
-                        } else {
-                            // $status_mahasiswa_awal = true; // Sesuaikan logika ini jika perlu
-                        }
-                        ?>
-
-                        <?php if ($is_pembimbing && $ujian_telah_lewat && $status_mahasiswa_awal) : ?>
+                        <?php if ($is_pembimbing && $waktu_ujian_telah_lewat && $status_mahasiswa_awal) : ?>
                             <div>
                                 <p class="text-sm font-semibold text-gray-700 mb-2">Tentukan Hasil Ujian:</p>
                                 <div class="flex space-x-2">
@@ -115,8 +139,8 @@
                             <div>
                                 <p class="text-sm font-semibold text-gray-700 mb-1">Hasil Ujian:</p>
                                 <?php
-                                $status_display = 'Telah Diproses'; // Default
-                                $badge_class = 'bg-gray-200 text-gray-800'; // Default
+                                $status_display = 'Telah Diproses'; 
+                                $badge_class = 'bg-gray-200 text-gray-800'; 
                                 if ($tipe_ujian_lower == 'proposal' || $tipe_ujian_lower == 'sempro') {
                                     $status_display = isset($jadwal['status_sempro']) ? $jadwal['status_sempro'] : 'Telah Diproses';
                                 } elseif ($tipe_ujian_lower == 'hasil' || $tipe_ujian_lower == 'semhas' || $tipe_ujian_lower == 'skripsi' || $tipe_ujian_lower == 'sidang') {
@@ -134,6 +158,10 @@
                                 </span>
                             </div>
                         <?php endif; ?>
+                        <?php // If not pembimbing, you might want to show some other info or nothing.
+                              // This part is outside the scope of the current request but for completeness.
+                              // else: ?>
+                            <?php // endif; ?>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -147,4 +175,3 @@
         </div>
     <?php endif; ?>
 </div>
-

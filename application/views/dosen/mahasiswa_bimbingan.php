@@ -12,15 +12,14 @@
                                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">No</th>
                                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Nama</th>
                                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">NIM</th>
-                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">sempro</th>
-                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">semhas</th>
+                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Sempro</th>
+                                <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Semhas</th>
                                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Judul Skripsi</th>
                                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Program Studi</th>
                                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Fakultas</th>
                                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Pembimbing</th>
                                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Penguji 1</th>
                                 <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Penguji 2</th>
-
                             </tr>
                         </thead>
                         <tbody>
@@ -32,41 +31,40 @@
                                             <span class="text-xs font-semibold leading-tight text-slate-400"><?= $no++; ?></span>
                                         </td>
                                         <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->nama); ?></span>
+                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->nama ?? ''); ?></span>
                                         </td>
                                         <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->nim); ?></span>
+                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->nim ?? ''); ?></span>
                                         </td>
                                         <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->status_sempro); ?></span>
+                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->status_sempro ?? '-'); // Atau '' jika ingin kosong ?></span>
                                         </td>
                                         <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->status_semhas); ?></span>
+                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->status_semhas ?? '-'); // Atau '' jika ingin kosong ?></span>
                                         </td>
                                         <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->judul_skripsi); ?></span>
+                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->judul_skripsi ?? ''); ?></span>
                                         </td>
                                         <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->prodi); ?></span>
+                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->prodi ?? ''); ?></span>
                                         </td>
                                         <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->fakultas); ?></span>
+                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->fakultas ?? ''); ?></span>
                                         </td>
                                          <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->pembimbing_nama ); ?></span>
+                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->pembimbing_nama ?? '-'); // Atau '' jika ingin kosong ?></span>
                                         </td>
                                          <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->penguji1_nama); ?></span>
+                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->penguji1_nama ?? '-'); // Atau '' jika ingin kosong ?></span>
                                         </td>
                                          <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->penguji2_nama); ?></span>
+                                            <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($mhs->penguji2_nama ?? '-'); // Atau '' jika ingin kosong ?></span>
                                         </td>
-   
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <tr>
-                                    <td colspan="6" class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
+                                    <td colspan="11" class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent"> {/* Pastikan colspan sesuai jumlah kolom th */}
                                         <span class="text-xs font-semibold leading-tight text-slate-400">Tidak ada mahasiswa bimbingan.</span>
                                     </td>
                                 </tr>
@@ -78,5 +76,3 @@
         </div>
     </div>
 </div>
-
-

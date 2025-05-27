@@ -13,10 +13,10 @@
     <?php endif; ?>
 
     <div class="mb-6 flex flex-wrap justify-center gap-4">
-        <button class="btn-filter bg-blue-500 text-white px-5 py-2 rounded-md shadow hover:bg-blue-600 focus:ring-2 focus:ring-blue-500" data-status="All">Semua</button>
         <button class="btn-filter bg-yellow-500 text-white px-5 py-2 rounded-md shadow hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-500" data-status="Menunggu">Menunggu</button>
         <button class="btn-filter bg-green-500 text-white px-5 py-2 rounded-md shadow hover:bg-green-600 focus:ring-2 focus:ring-green-500" data-status="Dikonfirmasi">Dikonfirmasi</button>
         <button class="btn-filter bg-red-500 text-white px-5 py-2 rounded-md shadow hover:bg-red-600 focus:ring-2 focus:ring-red-500" data-status="Ditolak">Ditolak</button>
+        <button class="btn-filter bg-blue-500 text-white px-5 py-2 rounded-md shadow hover:bg-blue-600 focus:ring-2 focus:ring-blue-500" data-status="All">Semua</button>
     </div>
 
     <div class="overflow-x-auto bg-white rounded-lg shadow-md">
@@ -136,29 +136,38 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Existing filter script
+    // Fungsi untuk menerapkan filter
+    function applyFilter(selectedStatus) {
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const rowStatus = row.getAttribute('data-status');
+            if (selectedStatus === 'all' || rowStatus === selectedStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Atur event listener untuk tombol filter
     document.querySelectorAll('.btn-filter').forEach(button => {
         button.addEventListener('click', () => {
             const selectedStatus = button.getAttribute('data-status').toLowerCase();
-            const rows = document.querySelectorAll('tbody tr');
-            rows.forEach(row => {
-                const rowStatus = row.getAttribute('data-status');
-                if (selectedStatus === 'all' || rowStatus === selectedStatus) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
-            });
+            applyFilter(selectedStatus);
         });
     });
 
-    // Modal script
+    // Terapkan filter default "Menunggu" saat halaman dimuat
+    const defaultFilterStatus = 'menunggu';
+    applyFilter(defaultFilterStatus);
+
+    // --- Sisa Modal script Anda tetap sama ---
     const modal = document.getElementById('statusUpdateModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const cancelModalBtn = document.getElementById('cancelModalBtn');
     const updateStatusForm = document.getElementById('updateStatusForm');
     const modalJadwalId = document.getElementById('modalJadwalId');
-    // const modalPengajuanId = document.getElementById('modalPengajuanId'); // Komentari/hapus jika tidak digunakan lagi berdasarkan pembaruan sebelumnya
+    const modalPengajuanId = document.getElementById('modalPengajuanId'); // Ambil elemen ini
     const modalRejectionReason = document.getElementById('modalRejectionReason');
     
     const statusMenungguRadio = document.getElementById('statusMenunggu');
@@ -167,24 +176,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const ditolakOptionsDiv = document.getElementById('ditolakOptions');
     const alasanSemuaRuanganPenuhRadio = document.getElementById('alasanSemuaRuanganPenuh');
-    // Variabel untuk elemen yang dihapus tidak diperlukan lagi
-    // const alasanRuanganTidakTersediaRadio = document.getElementById('alasanRuanganTidakTersedia');
-    // const rekomendasiRuanganContainer = document.getElementById('rekomendasiRuanganContainer');
-    // const rekomendasiRuanganList = document.getElementById('rekomendasiRuanganList');
 
-
-    let currentTipeUjian = ''; // Ini mungkin masih digunakan jika ada logika lain, jika tidak bisa dihapus
-    let currentTanggal = '';   // Ini mungkin masih digunakan jika ada logika lain, jika tidak bisa dihapus
-    let currentSlotWaktu = ''; // Ini mungkin masih digunakan jika ada logika lain, jika tidak bisa dihapus
-
+    // let currentTipeUjian = ''; // Anda bisa uncomment jika masih diperlukan
+    // let currentTanggal = '';   // Anda bisa uncomment jika masih diperlukan
+    // let currentSlotWaktu = ''; // Anda bisa uncomment jika masih diperlukan
 
     document.querySelectorAll('.btn-update-status').forEach(button => {
         button.addEventListener('click', () => {
             modalJadwalId.value = button.dataset.id;
-            // modalPengajuanId.value = button.dataset.pengajuanId || ''; // Sesuaikan berdasarkan kebutuhan
-            currentTipeUjian = button.dataset.tipeUjian; // Untuk konteks jika diperlukan di tempat lain
-            currentTanggal = button.dataset.tanggal;     // Untuk konteks jika diperlukan di tempat lain
-            currentSlotWaktu = button.dataset.slotWaktu; // Untuk konteks jika diperlukan di tempat lain
+            modalPengajuanId.value = button.dataset.pengajuanId || ''; // Isi pengajuanId
+            // currentTipeUjian = button.dataset.tipeUjian; 
+            // currentTanggal = button.dataset.tanggal;     
+            // currentSlotWaktu = button.dataset.slotWaktu; 
 
             const currentStatus = button.dataset.currentStatus;
             if (currentStatus === 'menunggu') statusMenungguRadio.checked = true;
@@ -198,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Reset Ditolak options
             ditolakOptionsDiv.style.display = 'none';
-            alasanSemuaRuanganPenuhRadio.checked = false; // Selalu reset ini
+            alasanSemuaRuanganPenuhRadio.checked = false; 
             modalRejectionReason.value = '';
 
             // Show Ditolak options if 'Ditolak' is pre-selected or selected
@@ -218,31 +221,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Handle status change in modal
     [statusMenungguRadio, statusDikonfirmasiRadio, statusDitolakRadio].forEach(radio => {
         radio.addEventListener('change', function() {
             if (this.id === 'statusDitolak' && this.checked) {
                 ditolakOptionsDiv.style.display = 'block';
             } else {
                 ditolakOptionsDiv.style.display = 'none';
-                alasanSemuaRuanganPenuhRadio.checked = false; // Reset jika Ditolak tidak dipilih
+                alasanSemuaRuanganPenuhRadio.checked = false; 
                 modalRejectionReason.value = '';
             }
         });
     });
-
-    // Handle "Ditolak" reason selection
-    // Event listener untuk alasanRuanganTidakTersediaRadio dihapus karena elemennya sudah tidak ada.
-    
-    // Event listener untuk alasanSemuaRuanganPenuhRadio tidak lagi wajib untuk mengisi modalRejectionReason.value
-    // karena logika submit form akan menghandlenya. Namun, jika ingin tetap ada:
-    /*
-    alasanSemuaRuanganPenuhRadio.addEventListener('change', function() {
-        if (this.checked) {
-            // modalRejectionReason.value = 'all_rooms_full'; // Ini akan dihandle oleh logika submit
-        }
-    });
-    */
 
     updateStatusForm.addEventListener('submit', function(event) {
         const selectedStatus = document.querySelector('input[name="status_konfirmasi"]:checked');
@@ -253,17 +242,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (selectedStatus.value === 'Ditolak') {
-            // Karena hanya ada satu alasan, kita cek apakah alasan tersebut dipilih
             const selectedAlasan = document.querySelector('input[name="alasan_ditolak_radio"]:checked');
             if (!selectedAlasan) {
                 event.preventDefault();
                 alert('Jika status "Ditolak", silakan pilih alasan penolakan.');
                 return;
             }
-            // Jika dipilih, nilainya pasti 'all_rooms_full'
             modalRejectionReason.value = selectedAlasan.value;
         } else {
-            modalRejectionReason.value = ''; // Clear if not 'Ditolak'
+            modalRejectionReason.value = ''; 
         }
     });
 });

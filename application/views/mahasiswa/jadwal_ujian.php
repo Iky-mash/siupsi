@@ -6,7 +6,7 @@
      + Ajukan Ujian
     </a>
 
-    <a href="<?= site_url('pengajuan/riwayat'); ?>" 
+    <a href="<?= site_url('mahasiswa/riwayat_pengajuan'); ?>" 
        class="inline-block bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-200 text-sm font-medium shadow">
      📄 Lihat Riwayat Pengajuan
     </a>
@@ -125,11 +125,7 @@
                 <span class="inline-block px-3 py-1 text-xs font-medium rounded-full <?= $statusClass ?>">
                     <?= ucfirst(htmlspecialchars($row->status_konfirmasi)) ?>
                 </span>
-                <a href="<?= site_url('mahasiswa/cetak_pdf/' . $row->id); ?>"
-                   class="text-sm bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition"
-                   target="_blank">
-                    🖨️ Cetak PDF
-                </a>
+                
             </div>
         </div>
         <?php endforeach; ?>

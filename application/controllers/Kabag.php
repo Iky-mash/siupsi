@@ -222,45 +222,6 @@ class Kabag extends CI_Controller {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
         public function pengajuan_ruangan() {
         $data['title'] = 'Jadwal Ujian';
       $data['jadwal'] = $this->Penjadwalan_model->get_all_jadwal();
@@ -272,7 +233,20 @@ class Kabag extends CI_Controller {
         $this->load->view('kabag/pengajuan_ruangan', $data);
         $this->load->view('templates/footer');
     }
-   // application/controllers/Kabag.php
+ public function reschedule() {
+    
+
+    $this->load->model('Penjadwalan_model'); // Pastikan model sudah di-load
+    $data['title'] = 'Riwayat Permintaan Penjadwalan Ulang';
+    $data['riwayat_list'] = $this->Penjadwalan_model->get_all_reschedule_history();
+
+    // Sesuaikan path template dengan struktur Anda
+    $this->load->view('templates/header', $data);
+    $this->load->view('templates/sidebar_kabag', $data);
+    $this->load->view('templates/navbar', $data);
+    $this->load->view('kabag/reschedule', $data); // View baru yang akan kita buat
+    $this->load->view('templates/footer', $data);
+}
 
 public function update_status() {
     $id_jadwal_yang_diproses = $this->input->post('id'); // Ini adalah jadwal_ujian.id
