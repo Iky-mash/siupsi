@@ -82,7 +82,7 @@
                 </h6>
             </li>
             <li class="mt-0.5 w-full">
-                <a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" href="<?= base_url('mahasiswa'); ?>">
+                <a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors" href="<?= base_url('kabag'); ?>">
                   <div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
                     <svg width="12px" height="12px" viewBox="0 0 45 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                       <title>shop</title>
@@ -111,7 +111,7 @@
             <li class="mt-0.5 w-full">
                 <a
                     class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors"
-                    href="<?= base_url('kabag/pengajuan_ruangan');?>">
+                    href="<?= base_url('kabag/berkas');?>">
                     <div
                         class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
                         <svg
@@ -146,14 +146,14 @@
                         </svg>
                     </div>
                     <span
-                        class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Pengajuan Ruangan</span>
+                        class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Berkas Pengajuan</span>
                 </a>
             </li>
 
-             <li class="mt-0.5 w-full">
+            <li class="mt-0.5 w-full">
                 <a
                     class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors"
-                    href="<?= base_url('mahasiswa/progres'); ?>">
+                    href="<?= base_url('kabag/pengajuan_ruangan'); ?>">
                     <div
                         class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
                         <svg
@@ -194,14 +194,14 @@
                         </svg>
                     </div>
                     <span
-                        class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Jadwal Ruangan</span>
+                        class="ml-1 duration-300 opacity-100 pointer-events-none ease-soft">Pengajuan Ujian</span>
                 </a>
-            </li> 
+            </li>  
 
          <li class="mt-0.5 w-full">
                 <a
                     class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors"
-                    href="<?= base_url() ?>pages/virtual-reality.html">
+                    href="<?= base_url('kabag/kelola') ?>">
                     <div
                         class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
                         <svg
@@ -246,7 +246,7 @@
             <li class="mt-0.5 w-full">
                 <a
                     class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors"
-                    href="<?= base_url('mahasiswa/profil_saya') ?>">
+                    href="<?= base_url('kabag/profil') ?>">
                     <div
                         class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white bg-center stroke-0 text-center xl:p-2.5">
                         <svg

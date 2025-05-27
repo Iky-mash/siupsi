@@ -11,7 +11,9 @@ class Agenda extends CI_Controller {
 
     public function index() {
 
-  $id_dosen = $this->session->userdata('id_dosen'); // Ambil ID dosen dari sesi
+         $data['title'] = 'Agenda Saya';
+
+        $id_dosen = $this->session->userdata('id_dosen'); // Ambil ID dosen dari sesi
 
     if (!$id_dosen) {
         redirect('auth'); // Redirect kalau belum login
@@ -70,16 +72,16 @@ class Agenda extends CI_Controller {
     public function store_by_date() {
         $this->load->model('Agenda_model');
     
-        $id_dosen = $this->session->userdata('id_dosen'); // Ambil ID dosen dari sesi
+        $id_dosen = $this->session->userdata('id_dosen'); 
         if (!$id_dosen) {
-            redirect('auth'); // Jika belum login, redirect ke halaman login
+            redirect('auth'); 
         }
     
         $tanggal = $this->input->post('tanggal');
         $slot_waktu = implode(',', $this->input->post('slot_waktu') ?? []);
     
         $data = [
-            'id_dosen' => $id_dosen, // Gunakan ID dosen dari sesi
+            'id_dosen' => $id_dosen, 
             'tanggal' => $tanggal,
             'slot_waktu' => $slot_waktu
         ];

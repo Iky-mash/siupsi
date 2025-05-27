@@ -19,5 +19,5 @@
     }
     ?>
 
-    <button type="submit">Simpan Perubahan</button>
+    <button type="submit">Simpan Agenda</button>
 </form>

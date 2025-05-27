@@ -26,22 +26,26 @@ class Mahasiswa extends CI_Controller{
     
   
 
-    public function index() {
+     public function index() {
         $data['title'] = 'Dashboard Mahasiswa';
-        $this->load->model('Mahasiswa_model');
-
-        // Ambil data mahasiswa beserta nama pembimbingnya
-        $data['mahasiswa'] = $this->Mahasiswa_model->get_mahasiswa_with_pembimbing();
         
-
+        // Ambil data mahasiswa beserta nama pembimbingnya
+        $mahasiswa_data = $this->Mahasiswa_model->get_mahasiswa_with_pembimbing();
+        
+        // Jika query hanya mengembalikan satu mahasiswa (berdasarkan NIM di session),
+        // dan Anda ingin mengaksesnya langsung tanpa foreach di view (meski foreach tetap aman)
+        // Anda bisa kirim objek tunggal jika yakin hanya ada satu.
+        // Namun, karena model mengembalikan result() yang merupakan array,
+        // maka $data['mahasiswa'] akan menjadi array.
+        // Jika hanya ada satu mahasiswa, array tersebut akan berisi satu elemen.
+        $data['mahasiswa_list'] = $mahasiswa_data; // Ganti nama variabel agar lebih jelas itu list
 
         $this->load->view('templates/header', $data);
-        $this->load->view('templates/sidebar_mahasiswa', $data);
+        $this->load->view('templates/sidebar_mahasiswa', $data); // Sesuaikan dengan nama sidebar Anda
         $this->load->view('templates/navbar', $data);
-        $this->load->view('mahasiswa/index', $data);
+        $this->load->view('mahasiswa/index', $data); // View yang akan kita modifikasi
         $this->load->view('templates/footer');
     }
-    
 
     public function profil_saya() {
         $data['title'] = 'Dashboard Mahasiswa';
@@ -100,29 +104,48 @@ class Mahasiswa extends CI_Controller{
         }
     }
 
-    public function jadwal_ujian() {
-        $data['title'] = 'Dashboard Mahasiswa';
-        $mahasiswa_id = $this->session->userdata('id');
-        $data['pengajuan'] = $this->Pengajuan_model->get_pengajuan_by_mahasiswa($mahasiswa_id);
-        $data['jadwal'] = $this->Penjadwalan_model->get_jadwal_by_mahasiswa($mahasiswa_id);
-        // $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-       
-        // $data['mahasiswa'] = $this->db->get_where('mahasiswa', ['email' => $this->session->userdata('email')])->row_array();
-        // $mahasiswa_id = $this->session->userdata('id'); 
-        // $this->load->model('Pengajuan_model');
-        // $data['pengajuan'] = $this->Pengajuan_model->get_pengajuan_by_mahasiswa($mahasiswa_id);
-        // $this->load->model('JadwalUjian_model');
-        // $mahasiswaId = $this->session->userdata('mahasiswa_id');
-        // $data['jadwal'] = $this->JadwalUjian_model->getJadwalByMahasiswa($mahasiswaId); 
-        
-        // Kirimkan data ke view
-        $this->load->view('templates/header', $data);
-        $this->load->view('templates/sidebar_mahasiswa', $data);
-        $this->load->view('templates/navbar', $data);
-        $this->load->view('mahasiswa/jadwal_ujian', $data);
-        $this->load->view('templates/footer');
-    }
+// application/controllers/Mahasiswa.php (atau controller yang relevan)
 
+public function jadwal_ujian() {
+    $data['title'] = 'Dashboard Mahasiswa';
+    $mahasiswa_id = $this->session->userdata('id'); 
+    
+    $data['status_sempro'] = $this->Pengajuan_model->get_latest_submission_by_type($mahasiswa_id, 'Sempro');
+    $data['status_semhas'] = $this->Pengajuan_model->get_latest_submission_by_type($mahasiswa_id, 'Semhas');
+    
+    $data['jadwal'] = $this->Penjadwalan_model->get_jadwal_by_mahasiswa($mahasiswa_id); // Model sudah filter 'Disetujui'
+
+    $data['has_approved_sempro_schedule'] = false;
+    $data['has_approved_semhas_schedule'] = false;
+
+    if (!empty($data['jadwal'])) {
+        foreach ($data['jadwal'] as $j_item) {
+            // Normalisasi tipe ujian dari jadwal untuk perbandingan yang konsisten
+            // Jika di DB tersimpan 'sempro', 'Sempro', atau 'SEMPRO', ini akan menjadi 'Sempro'
+            $schedule_tipe_ujian_normalized = ucfirst(strtolower($j_item->tipe_ujian)); 
+
+            if ($schedule_tipe_ujian_normalized == 'Sempro') {
+                $data['has_approved_sempro_schedule'] = true;
+            } elseif ($schedule_tipe_ujian_normalized == 'Semhas') {
+                $data['has_approved_semhas_schedule'] = true;
+            }
+        }
+    }
+    
+    // Untuk Debugging (hapus atau komentari setelah selesai)
+    // var_dump('Status Sempro Pengajuan:', $data['status_sempro'] ? $data['status_sempro']->status : 'Tidak ada');
+    // var_dump('Has Approved Sempro Schedule:', $data['has_approved_sempro_schedule']);
+    // var_dump('Status Semhas Pengajuan:', $data['status_semhas'] ? $data['status_semhas']->status : 'Tidak ada');
+    // var_dump('Has Approved Semhas Schedule:', $data['has_approved_semhas_schedule']);
+    // die;
+
+
+    $this->load->view('templates/header', $data);
+    $this->load->view('templates/sidebar_mahasiswa', $data);
+    $this->load->view('templates/navbar', $data);
+    $this->load->view('mahasiswa/jadwal_ujian', $data); 
+    $this->load->view('templates/footer');
+}
    // Controller: application/controllers/Mahasiswa.php
 public function cetak_pdf($id_jadwal)
 {

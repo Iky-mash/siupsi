@@ -56,7 +56,7 @@ private function _validate_login() {
 
     // Jika tidak ditemukan di tabel dosen, cek mahasiswa
     if (!$user) {
-        $user = $this->db->select('id, nama, email, password, role_id, nim, fakultas, prodi, is_active, date_created')
+        $user = $this->db->select('id, nama, email, password, role_id, nim, fakultas, prodi, is_active')
             ->from('mahasiswa')
             ->where('email', $email)
             ->get()
@@ -93,7 +93,7 @@ private function _validate_login() {
                 'email' => $user['email'],
                 'role_id' => $user['role_id'],
                 'role' => $role['role_name'],
-                'date_created' => $user['date_created']
+             
             ];
 
             // Tambahkan atribut khusus sesuai role
@@ -160,7 +160,7 @@ private function _validate_login() {
                 'password' => password_hash($this->input->post('password1'), PASSWORD_DEFAULT),
                 'role_id' => 3, // Mahasiswa
                 'is_active' => 1,
-                'date_created' => time(),
+                
             ];
             $this->db->insert('mahasiswa', $data);
             $this->session->set_flashdata('message', 'Akun berhasil dibuat');

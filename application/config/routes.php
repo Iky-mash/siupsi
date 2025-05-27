@@ -68,5 +68,6 @@ $route['admin/rekomendasi'] = 'admin/rekomendasi';
 $route['pengajuan'] = 'pengajuan/index';      // tampilkan form pengajuan
 $route['pengajuan/submit'] = 'pengajuan/submit';  // submit draft pengajuan
 $route['pengajuan/konfirmasi'] = 'pengajuan/konfirmasi'; // konfirmasi pengajuan
+$route['penjadwalan/updateStatus'] = 'penjadwalan/updateStatus';
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

@@ -1,6 +1,6 @@
 <div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-2xl shadow-lg">
     <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Tambah Ruangan</h2>
-    <form method="post" action="<?php echo site_url('ruangan/simpan'); ?>" class="space-y-4">
+    <form method="post" action="<?php echo site_url('ruangan/simpan_kabag'); ?>" class="space-y-4">
         <div>
             <label for="nama_ruangan" class="block text-sm font-medium text-gray-700">Nama Ruangan</label>
             <input type="text" id="nama_ruangan" name="nama_ruangan" required

@@ -1,29 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title; ?></title>
-</head>
-<body>
-    <h1>Profil Dosen</h1>
-    <table border="1" cellpadding="10" cellspacing="0">
-    <tr>
-<tr>
-    <th>Nama</th>
-    <td><?= $dosen->nama; ?></td>
-</tr>
-<tr>
-    <th>Email</th>
-    <td><?= $dosen->email; ?></td>
-</tr>
-<tr>
-    <th>NIP</th>
-    <td><?= $dosen->nip; ?></td>
-</tr>
+<!-- cards -->
+<div class="min-h-screen flex flex-col px-6 py-6 mx-auto">
+  <!-- row 1 -->
+  <div class="max-w-3xl mx-auto mt-10 p-6 bg-white shadow-xl rounded-xl">
+    <h1 class="text-3xl font-bold text-center text-blue-700 mb-6">Profil Dosen</h1>
 
-
+    <table class="w-full table-fixed bg-white rounded-lg overflow-hidden shadow">
+      <tbody class="text-gray-700 text-lg">
+        <tr class="border-b">
+          <th class="text-left px-6 py-4 bg-gray-100 font-semibold w-1/3 align-top">Nama</th>
+          <td class="px-6 py-4 w-2/3 break-words"><?= $dosen->nama; ?></td>
+        </tr>
+        <tr class="border-b">
+          <th class="text-left px-6 py-4 bg-gray-100 font-semibold w-1/3 align-top">Email</th>
+          <td class="px-6 py-4 w-2/3 break-words"><?= $dosen->email; ?></td>
+        </tr>
+        <tr>
+          <th class="text-left px-6 py-4 bg-gray-100 font-semibold w-1/3 align-top">NIP</th>
+          <td class="px-6 py-4 w-2/3 break-words"><?= $dosen->nip; ?></td>
+        </tr>
+      </tbody>
     </table>
-
-</body>
-</html>
+  </div>
+</div>
