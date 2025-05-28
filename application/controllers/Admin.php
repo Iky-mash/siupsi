@@ -1,9 +1,12 @@
 <?php
+use Dompdf\Dompdf;
+use Dompdf\Options;
 defined('BASEPATH') or exit('No direct script access allowed');
 
 class Admin extends CI_Controller {
 
     public function __construct() {
+        
         parent::__construct();
         $this->load->library('form_validation');
         $this->load->model('Pengajuan_model'); 
@@ -50,7 +53,7 @@ class Admin extends CI_Controller {
         $this->load->model('Mahasiswa_model'); // Pastikan model dimuat
         $data['mahasiswa'] = $this->Mahasiswa_model->get_all_mahasiswa_with_details();
   
-        $data['title'] = 'Dashboard Admin';
+        $data['title'] = 'Data Mahasiswa';
         
 
         $this->load->view('templates/header', $data);
@@ -62,7 +65,7 @@ class Admin extends CI_Controller {
     public function data_dosen() {
         $data['dosen'] = $this->Dosen_model->get_all_dosen(); // Mengambil data dosen
         $data['dosen'] = $this->db->get('dosen')->result();
-        $data['title'] = 'Dashboard Admin';
+        $data['title'] = 'Data Dosen';
         
 
         $this->load->view('templates/header', $data);
@@ -71,7 +74,49 @@ class Admin extends CI_Controller {
         $this->load->view('admin/data_dosen', $data); 
         $this->load->view('templates/footer');
     }
+public function laporan_seminar() {
+    $this->load->model('Mahasiswa_model');
+    $data['mahasiswa_seminar'] = $this->Mahasiswa_model->get_mahasiswa_seminar_status();
 
+    $data['title'] = 'Laporan Seminar Mahasiswa';
+
+    $this->load->view('templates/header', $data);
+    $this->load->view('templates/sidebar_admin', $data);
+    $this->load->view('templates/navbar', $data);
+    $this->load->view('admin/laporan_seminar', $data);
+    $this->load->view('templates/footer');
+}
+
+public function download_laporan_seminar() {
+    $this->load->model('Mahasiswa_model');
+    $data['mahasiswa_seminar'] = $this->Mahasiswa_model->get_mahasiswa_seminar_status();
+    $data['title'] = 'Laporan Status Seminar Mahasiswa'; // Title for the PDF content
+
+    // Load the view and pass data
+    // The TRUE third parameter tells it to return the content as a string
+    $html = $this->load->view('admin/laporan_seminar_pdf', $data, TRUE);
+
+    // Configure Dompdf
+    $options = new Options();
+    $options->set('isHtml5ParserEnabled', true);
+    $options->set('isRemoteEnabled', true); // Important for loading external CSS/images if any (not used here)
+    $options->set('defaultFont', 'Arial'); // Set a default font
+
+    $dompdf = new Dompdf($options);
+    $dompdf->loadHtml($html);
+
+    // (Optional) Setup the paper size and orientation
+    $dompdf->setPaper('A4', 'portrait'); // 'portrait' or 'landscape'
+
+    // Render the HTML as PDF
+    $dompdf->render();
+
+    // Output the generated PDF to Browser
+    // The 'Attachment' => 1 will force download, 0 will try to show in browser
+    $filename = 'laporan_seminar_mahasiswa_'.date('Ymd').'.pdf';
+    $dompdf->stream($filename, array("Attachment" => 1));
+    exit; // Important to prevent any further output from CodeIgniter
+}
     // Proses pengaitan dosen pembimbing ke mahasiswa
     public function assign_pembimbing_and_penguji() {
         $mahasiswa_id = $this->input->post('mahasiswa_id');
@@ -168,16 +213,46 @@ class Admin extends CI_Controller {
         $this->load->view('admin/importdata_mhs', $data);
         $this->load->view('templates/footer');
     }
-    public function tambah_dosen() {
-       
-        $data['title'] = 'Tambah Dosen';
-        
+      public function tambah_dosen() {
+        // Aturan validasi
+        $this->form_validation->set_rules('nama', 'Nama Lengkap', 'required|trim');
+        // Validasi email: required, valid_email, dan is_unique (cek di tabel 'dosen' kolom 'email')
+        $this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email|is_unique[dosen.email]', [
+            'is_unique' => 'Email ini sudah terdaftar.'
+        ]);
+        $this->form_validation->set_rules('password', 'Password', 'required|min_length[6]'); // Contoh min_length
+        // Validasi NIP: required dan is_unique (cek di tabel 'dosen' kolom 'nip')
+        $this->form_validation->set_rules('nip', 'NIP', 'required|trim|is_unique[dosen.nip]', [
+            'is_unique' => 'NIP ini sudah terdaftar.'
+        ]);
+        $this->form_validation->set_rules('role_id', 'Role ID', 'required|integer');
 
+        if ($this->form_validation->run() == FALSE) {
+            // Jika validasi gagal, tampilkan kembali form dengan pesan error
+            $data['judul'] = 'Form Tambah Data Dosen';
+            
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar_admin', $data);
         $this->load->view('templates/navbar', $data);
         $this->load->view('admin/tambah_dosen', $data);
         $this->load->view('templates/footer');
+            // Ganti 'nama_view_form_dosen' dengan nama file view Anda
+        } else {
+            // Jika validasi berhasil, proses penyimpanan data
+            $data_dosen = [
+                'nama' => $this->input->post('nama', true),
+                'email' => $this->input->post('email', true),
+                'password' => password_hash($this->input->post('password'), PASSWORD_DEFAULT), // Selalu hash password
+                'nip' => $this->input->post('nip', true),
+                'role_id' => $this->input->post('role_id', true)
+            ];
+
+            $this->Dosen_model->tambah_dosen($data_dosen);
+
+            // Set flashdata untuk pesan sukses
+            $this->session->set_flashdata('pesan', '<div class="alert alert-success">Data dosen berhasil ditambahkan!</div>');
+            redirect('admin/tambah_dosen'); 
+        }
     }
 
       // Method untuk menampilkan halaman edit mahasiswa
@@ -353,6 +428,8 @@ class Admin extends CI_Controller {
 
     //Pekan sempro dan semhas
     public function jadwal() {
+      $data['title'] = 'Pekan Seminar';
+
         $data['sempro'] = $this->Pekan_model->get_jadwal('sempro');
         $data['semhas'] = $this->Pekan_model->get_jadwal('semhas');
         $data['ruangan_sempro'] = $this->Ruangan_model->get_by_tipe('sempro');

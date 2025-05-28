@@ -1,16 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Mahasiswa</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-blue-50 p-6">
+
 
    
     <!-- Card untuk Data Mahasiswa -->
-    <div class="max-w-7xl mx-auto">
+    <div class="min-h-screen flex flex-col px-6 py-6 mx-auto">
         <div class="bg-white shadow-lg rounded-lg p-6">
             <div class="flex items-center justify-between mb-4">
                 <h6 class="text-lg font-semibold text-gray-700">Data Mahasiswa</h6>
@@ -55,5 +47,3 @@
         </div>
     </div>
 
-</body>
-</html>

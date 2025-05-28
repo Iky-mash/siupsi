@@ -17,10 +17,10 @@
 						<li
 							class="text-sm pl-2 capitalize leading-normal text-slate-700 before:float-left before:pr-2 before:text-gray-600 before:content-['/']"
 							aria-current="page">
-							Dashboard
+							<?= isset($title) ? $title : 'Page' ?>
 						</li>
 					</ol>
-					<h6 class="mb-0 font-bold capitalize">Dashboard</h6>
+					<h6 class="mb-0 font-bold capitalize"><?= isset($title) ? $title : 'Page' ?></h6>
 				</nav>
 
 				<div
@@ -163,9 +163,8 @@
 							</ul>
 						</li>
                        
-						<li class="flex items-center">
-                        <p class="hidden transform-dropdown-show"></p>
-							<a
+						<li class="flex items-center px-2"> 
+                       <a
                             href="javascript:;"
 								class="block p-0 transition-all text-sm ease-nav-brand text-slate-1000"
 								dropdown-trigger
@@ -175,19 +174,16 @@
 								<span class="hidden sm:inline"><?= isset($user['nama']) ? $user['nama'] : 'Guest' ?></span>
 								
 							</a>
-                            <ul
-								dropdown-menu
-								class="text-sm transform-dropdown before:font-awesome before:leading-default before:duration-350 before:ease-soft lg:shadow-soft-3xl duration-250 min-w-44 before:sm:right-7.5 before:text-5.5 pointer-events-none absolute right-0 top-0 z-50 origin-top list-none rounded-lg border-0 border-solid border-transparent bg-white bg-clip-padding px-2 py-4 text-left text-slate-500 opacity-0 transition-all before:absolute before:right-2 before:left-auto before:top-0 before:z-50 before:inline-block before:font-normal before:text-white before:antialiased before:transition-all before:content-['\f0d8'] sm:-mr-6 lg:absolute lg:right-0 lg:left-auto lg:mt-2 lg:block lg:cursor-pointer">
-								<!-- add show class on dropdown open js -->
-                                <li class="elative mb-2">
-                        <!-- Tombol Logout menggunakan form -->
-                                <form action="<?= site_url('auth/logout'); ?>" method="POST" style="display:inline;">
-                                    <button type="submit" class="btn btn-danger cursor-pointer">
-                                        <i class="fa fa-sign-out-alt"></i> Logout
-                                    </button>
-                                </form>
+                    </li>
 
-						</li>
+                    <li class="flex items-center px-2"> 
+                        <form action="<?= site_url('auth/logout'); ?>" method="POST" style="display:inline;">
+                            <button type="submit" class="flex items-center p-0 transition-all text-sm ease-nav-brand text-slate-700 hover:text-red-500 focus:outline-none bg-transparent border-none cursor-pointer">
+                                <i class="fa fa-sign-out-alt sm:mr-1"></i>
+                                <span class="hidden sm:inline">Logout</span>
+                            </button>
+                        </form>
+                    </li>
 							</ul>
 						</li>
 						<li class="flex items-center pl-4 xl:hidden">

@@ -49,7 +49,7 @@ class Mahasiswa extends CI_Controller{
     }
 
     public function profil_saya() {
-        $data['title'] = 'Dashboard Mahasiswa';
+        $data['title'] = 'Profil Saya';
         
         // Ambil data user dari tabel 'user'
         $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
@@ -108,7 +108,7 @@ class Mahasiswa extends CI_Controller{
 // application/controllers/Mahasiswa.php (atau controller yang relevan)
 
 public function jadwal_ujian() {
-    $data['title'] = 'Dashboard Mahasiswa';
+    $data['title'] = 'Pengajuan Jadwal Ujian';
     $mahasiswa_id = $this->session->userdata('id');
 
     // Load Mahasiswa_model (bisa juga di autoload atau constructor controller)
@@ -119,11 +119,9 @@ public function jadwal_ujian() {
     // 1. Ambil data mahasiswa lengkap, termasuk status_sempro dan status_semhas
     $data['mahasiswa'] = $this->Mahasiswa_model->get_mahasiswa_by_id($mahasiswa_id);
 
-    // 2. Ambil status pengajuan terbaru (untuk notifikasi status pengajuan)
-    $data['status_sempro_pengajuan'] = $this->Pengajuan_model->get_latest_submission_by_type($mahasiswa_id, 'Sempro');
-    $data['status_semhas_pengajuan'] = $this->Pengajuan_model->get_latest_submission_by_type($mahasiswa_id, 'Semhas');
+   $data['status_sempro_pengajuan'] = $this->Pengajuan_model->get_latest_submission_by_type($mahasiswa_id, 'Sempro');
+$data['status_semhas_pengajuan'] = $this->Pengajuan_model->get_latest_submission_by_type($mahasiswa_id, 'Semhas');
 
-    // 3. Ambil semua jadwal yang disetujui
     $all_approved_jadwal = $this->Penjadwalan_model->get_jadwal_by_mahasiswa($mahasiswa_id); // Model sudah filter 'Disetujui'/'Dikonfirmasi'
 
     $data['has_approved_sempro_schedule'] = false;
@@ -209,25 +207,9 @@ public function cetak_pdf($id_jadwal)
 }
 
     
-
-    public function progres() {
-        $data['title'] = 'Dashboard Mahasiswa';
-        
-        // Ambil data user dari tabel 'user'
-        $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
-        
-        // Ambil data mahasiswa berdasarkan user (email atau id)
-        $data['mahasiswa'] = $this->db->get_where('mahasiswa', ['email' => $this->session->userdata('email')])->row_array();
-        
-        // Kirimkan data ke view
-        $this->load->view('templates/header', $data);
-        $this->load->view('templates/sidebar_mahasiswa', $data);
-        $this->load->view('templates/navbar', $data);
-        $this->load->view('mahasiswa/progres', $data);
-        $this->load->view('templates/footer');
-    }
      public function riwayat_pengajuan() {
         // Ambil ID mahasiswa dari session
+          $data['title'] = 'Riwayat Pengajuan Ujian';
         $mahasiswa_id = $this->session->userdata('id');
 
         // Ambil detail mahasiswa
@@ -238,19 +220,15 @@ public function cetak_pdf($id_jadwal)
 
         $data['page_title'] = "Riwayat Pengajuan Ujian Saya";
 
-        // Jika detail mahasiswa tidak ditemukan (seharusnya tidak terjadi jika session valid)
         if (!$data['mahasiswa_detail']) {
             $this->session->set_flashdata('error', 'Data mahasiswa tidak ditemukan.');
-            // Bisa redirect ke dashboard mahasiswa atau halaman error
-            redirect('mahasiswa/dashboard'); // Sesuaikan
+           
+            redirect('mahasiswa/dashboard'); 
             return;
         }
-        
-        // Load view untuk menampilkan riwayat
-        // Anda mungkin punya struktur template sendiri (header, footer)
-        // $this->load->view('mahasiswa/template/header_mahasiswa', $data);
+   
        
-         $this->load->view('templates/header', $data);
+    $this->load->view('templates/header', $data);
     $this->load->view('templates/sidebar_mahasiswa', $data);
     $this->load->view('templates/navbar', $data);
     $this->load->view('mahasiswa/riwayat_pengajuan', $data);

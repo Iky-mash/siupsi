@@ -56,6 +56,14 @@
 
 </body>
 <!-- plugin for charts  -->
+<script src="<?= base_url() ?>assets/js/core/popper.min.js"></script> 
+<script src="<?= base_url() ?>assets/js/core/bootstrap.min.js"></script> 
+<script src="<?= base_url() ?>assets/js/plugins/perfect-scrollbar.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/smooth-scrollbar.min.js"></script>
+<script src="<?= base_url() ?>assets/js/plugins/chartjs.min.js"></script> 
+<script src="<?= base_url() ?>assets/js/soft-ui-dashboard-tailwind.min.js?v=1.0.5"></script>
+
+<script async defer src="https://buttons.github.io/buttons.js"></script>
 <script src="<?= base_url() ?>assets/js/plugins/chartjs.min.js" async></script>
 <!-- plugin for scrollbar  -->
 <script src="<?= base_url() ?>assets/js/plugins/perfect-scrollbar.min.js" async></script>

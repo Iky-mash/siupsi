@@ -1,75 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agenda Dosen</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-blue-50 p-6">
+<main class="container mx-auto px-4 sm:px-6 py-8">
 
-    <!-- Memastikan variabel $id_dosen ada -->
-    <?php if (isset($id_dosen)): ?>
-        <div class="flex flex-wrap -mx-3">
-            <div class="flex-none w-full max-w-full px-3">
-                <div class="relative flex flex-col min-w-0 mb-6 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
-                    <div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent flex items-center justify-between">
-                        <h6 class="text-xs font-bold uppercase text-slate-400 opacity-70">Agenda Dosen</h6>
-                        <!-- Link untuk tambah agenda -->
-                        <a href="<?= base_url('admin/tambah_agenda/' . $id_dosen); ?>" class="px-4 py-2 text-xs font-semibold leading-tight text-slate-400 bg-transparent border rounded hover:bg-blue-100 transition duration-200">
-                            (+) Tambah Agenda
-                        </a>
+    <section class="bg-white p-6 sm:p-8 rounded-lg shadow-lg mb-10">
+        <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-4">Selamat Datang, Admin! 👋</h2>
+        <p class="text-gray-700 leading-relaxed">
+            Ini adalah pusat kendali untuk <strong>Sistem Penjadwalan Ujian Skripsi dan Seminar</strong>.
+            Melalui panel ini, Anda dapat mengelola seluruh aspek penjadwalan, mulai dari data master hingga pelaporan.
+            Pastikan semua data terkelola dengan baik untuk kelancaran proses akademik.
+        </p>
+    </section>
+
+    <section>
+        
+        <div class="relative">
+            <div class="absolute left-5 sm:left-[23px] top-2 bottom-2 w-1 bg-indigo-200 rounded-full hidden sm:block" style="z-index: 0;"></div>
+
+            <div class="mb-8 relative">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 z-10">
+                        <span class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-indigo-500 text-white rounded-full text-lg font-bold ring-4 ring-gray-100 shadow">1</span>
                     </div>
-                    <div class="flex-auto px-0 pt-0 pb-2">
-                        <div class="p-0 overflow-x-auto">
-                            <table class="items-center w-full mb-0 align-top border-gray-200 text-slate-500">
-                                <thead class="align-bottom">
-                                    <tr>
-                                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">No</th>
-                                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Tanggal</th>
-                                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Waktu</th>
-                                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Keterangan</th>
-                                        <th class="px-6 py-3 font-bold text-center uppercase align-middle bg-transparent border-b border-gray-200 shadow-none text-xs border-b-solid tracking-none whitespace-nowrap text-slate-400 opacity-70">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (!empty($agenda)): ?>
-                                        <?php $no = 1; ?>
-                                        <?php foreach ($agenda as $item): ?>
-                                            <tr class="hover:bg-blue-100 transition duration-200">
-                                                <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                                    <span class="text-xs font-semibold leading-tight text-slate-400"><?= $no++; ?></span>
-                                                </td>
-                                                <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                                    <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($item->tanggal); ?></span>
-                                                </td>
-                                                <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                                    <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($item->waktu_mulai) . ' - ' . htmlspecialchars($item->waktu_selesai); ?></span>
-                                                </td>
-                                                <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                                    <span class="text-xs font-semibold leading-tight text-slate-400"><?= htmlspecialchars($item->keterangan); ?></span>
-                                                </td>
-                                                <td class="p-2 text-center align-middle bg-transparent border-b whitespace-nowrap shadow-transparent">
-                                                    <a href="<?= base_url('admin/edit_agenda/' . $item->id_agenda); ?>" class="px-2 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-100 rounded">Edit</a>
-                                                    <a href="<?= base_url('admin/delete_agenda/' . $item->id_agenda); ?>" onclick="return confirm('Are you sure you want to delete this agenda?');" class="px-2 py-1 text-xs font-semibold text-red-600 hover:bg-red-100 rounded">Delete</a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="5" class="text-center p-4">No agenda available</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
+                    <div class="ml-4 sm:ml-6 flex-grow bg-white p-4 sm:p-5 rounded-lg shadow-md">
+                        <h3 class="text-lg sm:text-xl font-semibold text-indigo-700 mb-1">Data Dosen</h3>
+                        <p class="text-gray-600 text-sm sm:text-base">
+                            Menginput dan mengelola data dosen program studi. Ini adalah langkah awal untuk memastikan ketersediaan data pembimbing dan penguji.
+                        </p>
                         </div>
+                </div>
+            </div>
+
+            <div class="mb-8 relative">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 z-10">
+                        <span class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-green-500 text-white rounded-full text-lg font-bold ring-4 ring-gray-100 shadow">2</span>
                     </div>
+                    <div class="ml-4 sm:ml-6 flex-grow bg-white p-4 sm:p-5 rounded-lg shadow-md">
+                        <h3 class="text-lg sm:text-xl font-semibold text-green-700 mb-1">Data Mahasiswa</h3>
+                        <p class="text-gray-600 text-sm sm:text-base">
+                            Mengelola dan menginput data mahasiswa yang akan mengikuti seminar proposal atau ujian skripsi. Pastikan sudah menginput data dosen terlebih dahulu
+                        </p>
+                        </div>
+                </div>
+            </div>
+
+            <div class="mb-8 relative">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 z-10">
+                        <span class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-red-500 text-white rounded-full text-lg font-bold ring-4 ring-gray-100 shadow">3</span>
+                    </div>
+                    <div class="ml-4 sm:ml-6 flex-grow bg-white p-4 sm:p-5 rounded-lg shadow-md">
+                        <h3 class="text-lg sm:text-xl font-semibold text-red-700 mb-1">Pekan Seminar</h3>
+                        <p class="text-gray-600 text-sm sm:text-base">
+                            Mengatur jadwal pekan seminar (proposal & hasil), dan ketersediaan ruangan ujian.
+                        </p>
+                        </div>
+                </div>
+            </div>
+
+            <div class="relative"> <div class="flex items-start">
+                    <div class="flex-shrink-0 z-10">
+                        <span class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 text-white rounded-full text-lg font-bold ring-4 ring-gray-100 shadow">4</span>
+                    </div>
+                    <div class="ml-4 sm:ml-6 flex-grow bg-white p-4 sm:p-5 rounded-lg shadow-md">
+                        <h3 class="text-lg sm:text-xl font-semibold text-blue-700 mb-1">Laporan</h3>
+                        <p class="text-gray-600 text-sm sm:text-base">
+                            Mencetak hasil dan rekapitulasi dari pelaksanaan pekan seminar.
+                        </p>
+                        </div>
                 </div>
             </div>
         </div>
-    <?php else: ?>
-        <p class="text-center text-red-600">ID Dosen Tidak Ditemukan</p>
-    <?php endif; ?>
-
-</body>
-</html>
+    </section>
+</main>

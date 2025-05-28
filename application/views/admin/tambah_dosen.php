@@ -41,7 +41,7 @@
         }
         ?>
 
-        <?php echo form_open('tambah/proses_tambah'); ?>
+        <?php echo form_open('admin/tambah_dosen'); ?>
 
         <div class="form-group">
             <label for="nama">Nama Lengkap:</label>

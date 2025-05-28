@@ -20,12 +20,13 @@ class Ruangan extends CI_Controller {
 
     public function tambah()
     {
-       
 
-         $this->load->view('templates/header' );
-        $this->load->view('templates/sidebar_admin');
-        $this->load->view('templates/navbar');
-         $this->load->view('ruangan/tambah');
+        $data['title'] = 'Tambah Ruangan';
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('templates/sidebar_mahasiswa', $data); 
+        $this->load->view('templates/navbar', $data);
+        $this->load->view('ruangan/tambah'); 
         $this->load->view('templates/footer');
     }
 
@@ -64,47 +65,4 @@ class Ruangan extends CI_Controller {
     }
 
 
-    
-    public function tambah_kabag()
-    {
-            $this->load->view('templates/header' );
-        $this->load->view('templates/sidebar_kabag');
-        $this->load->view('templates/navbar');
-         $this->load->view('ruangan/tambah_kabag');
-        $this->load->view('templates/footer');
-    }
-
-      public function simpan_kabag()
-    {
-        $data = [
-            'nama_ruangan' => $this->input->post('nama_ruangan'),
-            'kapasitas' => $this->input->post('kapasitas'),
-            'tipe_seminar' => $this->input->post('tipe_seminar')
-        ];
-        $this->Ruangan_model->insert($data);
-        redirect('kabag/kelola');
-    }
-
-    public function edit_kabag($id)
-    {
-        $data['ruangan'] = $this->Ruangan_model->get_by_id($id);
-        $this->load->view('ruangan/edit', $data);
-    }
-
-    public function update_kabag($id)
-    {
-        $data = [
-            'nama_ruangan' => $this->input->post('nama_ruangan'),
-            'kapasitas' => $this->input->post('kapasitas'),
-            'tipe_seminar' => $this->input->post('tipe_seminar')
-        ];
-        $this->Ruangan_model->update($id, $data);
-        redirect('kabag/kelola');
-    }
-
-    public function hapus_kabag($id)
-    {
-        $this->Ruangan_model->delete($id);
-        redirect('kabag/kelola');
-    }
 }

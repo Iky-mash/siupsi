@@ -26,6 +26,8 @@
 	<!-- Popper -->
 	<script src="https://unpkg.com/@popperjs/core@2"></script>
 	<!-- Main Styling -->
+	<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 	<link
 		href="<?= base_url() ?>assets/css/soft-ui-dashboard-tailwind.css?v=1.0.5"
 		rel="stylesheet" />

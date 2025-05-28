@@ -158,6 +158,15 @@ class Mahasiswa_model extends CI_Model {
         $query = $this->db->get();
         return $query->result();
     }
+    public function get_mahasiswa_seminar_status() {
+    $this->db->select('id, nama, nim, status_sempro, status_semhas');
+    $this->db->from('mahasiswa');
+    // You might want to filter by role_id if only students should appear
+    // $this->db->where('role_id', 3); // Assuming role_id 3 is for students
+    $this->db->order_by('nama', 'ASC'); // Optional: order by name
+    $query = $this->db->get();
+    return $query->result();
+}
     public function delete_mahasiswa($id) {
         return $this->db->delete('mahasiswa', ['id' => $id]);
     }

@@ -1,13 +1,5 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Pekan Seminar</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100">
-<div class="container mx-auto p-6">
+
+<div class="min-h-screen flex flex-col px-6 py-6 mx-auto">
 
     <!-- HEADER -->
     <div class="flex justify-between items-center mb-6">
@@ -148,11 +140,4 @@
 
 </div>
 
-<script>
-    function toggleForm() {
-        document.getElementById('form-jadwal').classList.toggle('hidden');
-    }
-</script>
 
-</body>
-</html>

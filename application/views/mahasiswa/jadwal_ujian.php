@@ -1,3 +1,5 @@
+<div class="min-h-screen">
+
 <div class="max-w-6xl mx-auto">
 
 <div class="flex justify-end mb-1 space-x-4">
@@ -6,10 +8,6 @@
      + Ajukan Ujian
     </a>
 
-    <a href="<?= site_url('mahasiswa/riwayat_pengajuan'); ?>" 
-       class="inline-block bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-200 text-sm font-medium shadow">
-     📄 Lihat Riwayat Pengajuan
-    </a>
 </div>
 
 <div class="max-w-6xl mx-auto my-10 p-6 bg-white shadow-xl rounded-xl">
@@ -22,10 +20,10 @@
             'dijadwalkan' => ['text' => 'Sudah Dijadwalkan', 'class' => 'bg-blue-100 text-blue-700 border-blue-300', 'icon' => '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" /></svg>'],
         ];
 
-        $pengajuan_types = [
-            'Sempro' => isset($status_sempro) ? $status_sempro : null,
-            'Semhas' => isset($status_semhas) ? $status_semhas : null,
-        ];
+         $pengajuan_types = [
+        'Sempro' => isset($status_sempro_pengajuan) ? $status_sempro_pengajuan : null,
+        'Semhas' => isset($status_semhas_pengajuan) ? $status_semhas_pengajuan : null,
+    ];
 
         $ada_pengajuan_aktif_untuk_ditampilkan = false; // Flag baru
         foreach ($pengajuan_types as $tipe => $pengajuan) {
@@ -137,5 +135,6 @@
     <?php endif; ?>
 </div>
 
+</div>
 </div>
 </div>

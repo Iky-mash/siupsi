@@ -1,9 +1,5 @@
-<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-800 mb-4 sm:mb-0">
-            <?= htmlspecialchars($title); ?>
-        </h1>
-        </div>
+<div class="container min-h-screen flex flex-col px-6 py-6 mx-auto">
+   
 
     <?php if ($this->session->flashdata('message')): ?>
         <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4 mb-6 shadow-md rounded-md" role="alert">

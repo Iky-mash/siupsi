@@ -1,9 +1,4 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo isset($page_title) ? htmlspecialchars($page_title) : "Riwayat Pengajuan Ujian"; ?></title>
+
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; background-color: #f4f4f4; color: #333; }
         .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
@@ -92,10 +87,9 @@
         .badge-info { background-color: #17a2b8; }
         .no-history { padding: 15px; text-align: center; color: #666; }
     </style>
-</head>
-<body>
-    <div class="container">
-        <h1><?php echo isset($page_title) ? htmlspecialchars($page_title) : "Riwayat Pengajuan Ujian"; ?></h1>
+
+    <div class="min-h-screen flex flex-col px-6 py-6 mx-auto">
+      
 
         <?php if (isset($message)): ?>
             <p class="no-history"><?php echo htmlspecialchars($message); ?></p>
@@ -212,6 +206,3 @@
         }
     }
     </script>
-
-</body>
-</html>

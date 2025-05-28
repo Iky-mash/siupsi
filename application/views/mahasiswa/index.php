@@ -130,3 +130,56 @@
         </div>
     <?php endif; ?>
 </div>
+<main class="container mx-auto px-4 sm:px-6 py-8">
+
+  
+
+    <section>
+        
+
+        <div class="relative">
+            <div class="absolute left-5 sm:left-[23px] top-2 bottom-2 w-1 bg-gray-300 rounded-full hidden sm:block" style="z-index: 0;"></div>
+
+            <div class="mb-8 relative">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 z-10">
+                        <span class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-blue-500 text-white rounded-full text-lg font-bold ring-4 ring-gray-100 shadow">1</span>
+                    </div>
+                    <div class="ml-4 sm:ml-6 flex-grow bg-white p-4 sm:p-5 rounded-lg shadow-md">
+                        <h3 class="text-lg sm:text-xl font-semibold text-blue-700 mb-1">Kelola Profil Pribadi</h3>
+                        <p class="text-gray-600 text-sm sm:text-base">
+                            Melakukan pembaruan dan melengkapi data profil pribadi Anda. Pastikan data Anda akurat dan terkini, karena kelengkapan profil adalah prasyarat untuk mengakses fitur pengajuan jadwal ujian.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-8 relative">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 z-10">
+                        <span class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-red-500 text-white rounded-full text-lg font-bold ring-4 ring-gray-100 shadow">2</span>
+                    </div>
+                    <div class="ml-4 sm:ml-6 flex-grow bg-white p-4 sm:p-5 rounded-lg shadow-md">
+                        <h3 class="text-lg sm:text-xl font-semibold text-red-700 mb-1">Pengajuan Jadwal Seminar & Ujian</h3>
+                        <p class="text-gray-600 text-sm sm:text-base">
+                            Mengajukan permohonan jadwal seminar (proposal/hasil) atau ujian skripsi Anda sesuai dengan ketentuan, persyaratan, dan periode waktu yang telah ditetapkan oleh program studi.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative"> <div class="flex items-start">
+                    <div class="flex-shrink-0 z-10">
+                        <span class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-green-500 text-white rounded-full text-lg font-bold ring-4 ring-gray-100 shadow">3</span>
+                    </div>
+                    <div class="ml-4 sm:ml-6 flex-grow bg-white p-4 sm:p-5 rounded-lg shadow-md">
+                        <h3 class="text-lg sm:text-xl font-semibold text-green-700 mb-1">Riwayat & Status Pengajuan</h3>
+                        <p class="text-gray-600 text-sm sm:text-base">
+                            Memantau status terkini dan meninjau riwayat seluruh pengajuan jadwal ujian Anda, mulai dari tahap pengajuan, verifikasi, hingga konfirmasi akhir jadwal.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>

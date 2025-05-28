@@ -1,7 +1,4 @@
-<!-- cards -->
-<div class="min-h-screen flex flex-col px-6 py-6 mx-auto">
- 
-    <style>
+ <style>
         /* Anda bisa menggunakan CSS yang sama atau mirip dengan halaman dosen untuk konsistensi */
         body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; background-color: #f4f4f4; color: #333; }
         .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
@@ -63,21 +60,38 @@
         .badge-info { background-color: #17a2b8; }
         .no-history { padding: 20px; text-align: center; color: #555; background-color: #f0f0f0; border-radius: 5px;}
     </style>
-
-    <div class="container">
-        <h1><?php echo isset($page_title) ? htmlspecialchars($page_title) : "Riwayat Pengajuan Ujian Saya"; ?></h1>
-
+<div class="min-h-screen flex flex-col px-6 py-6 mx-auto">
+ 
         <?php if (isset($mahasiswa_detail) && $mahasiswa_detail): ?>
-            <div class="student-info-header">
-                <h2><?php echo htmlspecialchars($mahasiswa_detail['nama']); ?></h2>
-                <p><strong>NIM:</strong> <?php echo htmlspecialchars($mahasiswa_detail['nim']); ?></p>
-                <?php if(isset($mahasiswa_detail['prodi']) && !empty($mahasiswa_detail['prodi'])): ?>
-                    <p><strong>Program Studi:</strong> <?php echo htmlspecialchars($mahasiswa_detail['prodi']); ?></p>
-                <?php endif; ?>
-                 <?php if(isset($mahasiswa_detail['fakultas']) && !empty($mahasiswa_detail['fakultas'])): ?>
-                    <p><strong>Fakultas:</strong> <?php echo htmlspecialchars($mahasiswa_detail['fakultas']); ?></p>
-                <?php endif; ?>
-            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg border border-gray-200">
+    <h2 class="text-2xl sm:text-3xl font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+        <?php echo htmlspecialchars($mahasiswa_detail['nama']); ?>
+    </h2>
+    <div class="space-y-3 text-gray-700">
+        <p>
+            <strong class="font-medium text-gray-600 w-32 inline-block">NIM</strong>
+            <span class="font-medium text-gray-500 mr-2">:</span>
+            <?php echo htmlspecialchars($mahasiswa_detail['nim']); ?>
+        </p>
+
+        <?php if(isset($mahasiswa_detail['prodi']) && !empty($mahasiswa_detail['prodi'])): ?>
+            <p>
+                <strong class="font-medium text-gray-600 w-32 inline-block">Program Studi</strong>
+                <span class="font-medium text-gray-500 mr-2">:</span>
+                <?php echo htmlspecialchars($mahasiswa_detail['prodi']); ?>
+            </p>
+        <?php endif; ?>
+
+        <?php if(isset($mahasiswa_detail['fakultas']) && !empty($mahasiswa_detail['fakultas'])): ?>
+            <p>
+                <strong class="font-medium text-gray-600 w-32 inline-block">Fakultas</strong>
+                <span class="font-medium text-gray-500 mr-2">:</span>
+                <?php echo htmlspecialchars($mahasiswa_detail['fakultas']); ?>
+            </p>
+        <?php endif; ?>
+        
+        </div>
+</div>
         <?php else: ?>
             <p class="no-history">Informasi detail mahasiswa tidak dapat dimuat.</p>
         <?php endif; ?>

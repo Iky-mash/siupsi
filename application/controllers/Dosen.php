@@ -55,16 +55,11 @@ class Dosen extends CI_Controller{
         $this->load->view('templates/footer');
     }
 public function riwayat_ujian() {
-        // Ambil ID dosen dari sesi (contoh, sesuaikan dengan implementasi Anda)
-        // Untuk pengujian, Anda bisa hardcode dulu:
-        // $dosen_id = 1; // Ganti dengan ID dosen yang valid dari data Anda
+         $data['title'] = 'Riwayat Ujian Mahasiswa';
         $dosen_id = $this->session->userdata('id_dosen');
 
         if (!$dosen_id) {
-            // Handle jika dosen_id tidak ditemukan di sesi
             echo "Sesi dosen tidak ditemukan. Silakan login terlebih dahulu.";
-            // Opsional: redirect ke login
-            // redirect('auth/login_dosen');
             return;
         }
         

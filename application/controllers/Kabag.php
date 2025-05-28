@@ -98,44 +98,61 @@ class Kabag extends CI_Controller {
     }
 
     // Memproses konfirmasi pengajuan (opsional, jika Kabag juga bisa konfirmasi)
-    public function konfirmasi_pengajuan($pengajuan_id) {
-        if (!is_numeric($pengajuan_id)) {
-            show_404();
-        }
+   public function konfirmasi_pengajuan($pengajuan_id) {
+    if (!is_numeric($pengajuan_id)) {
+        show_404();
+    }
 
-        if ($this->Pengajuan_model->update_pengajuan_status($pengajuan_id, 'dikonfirmasi')) {
-            $this->session->set_flashdata('success', 'Pengajuan berhasil dikonfirmasi.');
-             // TODO: Kirim notifikasi email ke mahasiswa jika perlu
-        } else {
-            $this->session->set_flashdata('error', 'Gagal memproses konfirmasi pengajuan.');
-        }
-        $mahasiswa_id = $this->session->userdata('id');
-        if (!$mahasiswa_id) {
-            show_error("Mahasiswa tidak ditemukan di session!", 500);
-        }
-    
-        $data_konfirmasi = [
-            'pengajuan_id' => $pengajuan_id,
-            'mahasiswa_id' => $mahasiswa_id, // menggunakan 'id' yang sama seperti pada session
-            'tanggal_konfirmasi' => date('Y-m-d'),
-            'status_konfirmasi' => 'Terkonfirmasi'
-        ];
-    
-        // Simpan ke tabel konfirmasi_pengajuan
-        $this->db->insert('konfirmasi_pengajuan', $data_konfirmasi);
-    
-        // Update status di pengajuan_ujian_prioritas menjadi 'dikonfirmasi'
-        $this->db->where('id', $pengajuan_id);
-        $this->db->update('pengajuan_ujian_prioritas', ['status' => 'dikonfirmasi']);
-
-          // 3. Ambil kembali data pengajuan
+    // 1. Ambil data pengajuan terlebih dahulu untuk mendapatkan mahasiswa_id yang benar
     $pengajuan = $this->Pengajuan_model->get_pengajuan_by_id($pengajuan_id);
 
-    // 4. Panggil fungsi penjadwalan otomatis
+    if (!$pengajuan) {
+        $this->session->set_flashdata('error', 'Data pengajuan tidak ditemukan.');
+        redirect('kabag/berkas'); // Atau halaman error yang sesuai
+        return; // Hentikan eksekusi jika pengajuan tidak ada
+    }
+
+    // Ambil mahasiswa_id dari data pengajuan
+    $mahasiswa_id_pengaju = $pengajuan['mahasiswa_id']; // Ini adalah ID mahasiswa yang mengajukan
+
+    if ($this->Pengajuan_model->update_pengajuan_status($pengajuan_id, 'dikonfirmasi')) {
+        $this->session->set_flashdata('success', 'Pengajuan berhasil dikonfirmasi.');
+        // TODO: Kirim notifikasi email ke mahasiswa jika perlu
+    } else {
+        $this->session->set_flashdata('error', 'Gagal memproses konfirmasi pengajuan.');
+        redirect('kabag/berkas'); // Redirect jika update status gagal
+        return;
+    }
+
+    // Data untuk tabel konfirmasi_pengajuan
+    $data_konfirmasi = [
+        'pengajuan_id'      => $pengajuan_id,
+        'mahasiswa_id'      => $mahasiswa_id_pengaju, // Gunakan ID mahasiswa dari data pengajuan
+        'tanggal_konfirmasi'=> date('Y-m-d'),
+        'status_konfirmasi' => 'Terkonfirmasi'
+    ];
+
+    // Simpan ke tabel konfirmasi_pengajuan
+    if (!$this->db->insert('konfirmasi_pengajuan', $data_konfirmasi)) {
+        // Tangani jika insert ke konfirmasi_pengajuan gagal
+        $db_error = $this->db->error();
+        $this->session->set_flashdata('error', 'Gagal menyimpan data konfirmasi. DB Error: ' . $db_error['message']);
+        // Mungkin perlu rollback update status sebelumnya jika insert ini gagal
+        redirect('kabag/berkas');
+        return;
+    }
+
+    // Update status di pengajuan_ujian_prioritas menjadi 'dikonfirmasi' (ini mungkin sudah dilakukan oleh update_pengajuan_status di atas, pastikan tidak duplikat)
+    // Jika update_pengajuan_status sudah mengurus ini, baris berikut bisa jadi tidak perlu:
+    // $this->db->where('id', $pengajuan_id);
+    // $this->db->update('pengajuan_ujian_prioritas', ['status' => 'dikonfirmasi']);
+
+    // Panggil fungsi penjadwalan otomatis
+    // Data $pengajuan sudah kita dapatkan di awal, jadi bisa langsung digunakan
     $this->penjadwalan_otomatis($pengajuan);
 
-        redirect('kabag/berkas');
-    }
+    redirect('kabag/berkas');
+}
 
  private function penjadwalan_otomatis($pengajuan) {
         $mhs_id    = $pengajuan['mahasiswa_id'];
