@@ -24,7 +24,7 @@ class Kabag extends CI_Controller {
 
     }
     public function index() {
-        $data['title'] = 'Dashboard Akademik';
+        $data['title'] = 'Dashboard';
     
          $data['status_summary'] = $this->Penjadwalan_model->get_status_summary();
 
@@ -37,7 +37,7 @@ class Kabag extends CI_Controller {
     }
 
     public function berkas() {
-         $data['title'] = 'Pengecekan Berkas Pengajuan Ujian';
+         $data['title'] = 'Berkas Pengajuan';
         $pengajuan_list = $this->Pengajuan_model->get_all_pengajuan_for_kabag_review();
          $mahasiswa_id = $this->session->userdata('id');
          $data['pengajuan'] = $this->Pengajuan_model->get_pengajuan_by_mahasiswa($mahasiswa_id);
@@ -254,7 +254,7 @@ class Kabag extends CI_Controller {
     
 
     $this->load->model('Penjadwalan_model'); // Pastikan model sudah di-load
-    $data['title'] = 'Riwayat Permintaan Penjadwalan Ulang';
+    $data['title'] = 'Riwayat Reschedule';
     $data['riwayat_list'] = $this->Penjadwalan_model->get_all_reschedule_history();
 
     // Sesuaikan path template dengan struktur Anda

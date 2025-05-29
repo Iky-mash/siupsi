@@ -34,7 +34,7 @@ class Dosen extends CI_Controller{
     }
 
     public function mahasiswa_bimbingan() {
-        $data['title'] = 'Mahasiswa Bimbingan';
+        $data['title'] = 'Bimbingan';
     
         // Ambil data user yang sedang login
         $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
@@ -55,7 +55,7 @@ class Dosen extends CI_Controller{
         $this->load->view('templates/footer');
     }
 public function riwayat_ujian() {
-         $data['title'] = 'Riwayat Ujian Mahasiswa';
+         $data['title'] = 'Riwayat Ujian';
         $dosen_id = $this->session->userdata('id_dosen');
 
         if (!$dosen_id) {

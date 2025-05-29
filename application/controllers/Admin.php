@@ -78,7 +78,7 @@ public function laporan_seminar() {
     $this->load->model('Mahasiswa_model');
     $data['mahasiswa_seminar'] = $this->Mahasiswa_model->get_mahasiswa_seminar_status();
 
-    $data['title'] = 'Laporan Seminar Mahasiswa';
+    $data['title'] = 'Laporan Seminar';
 
     $this->load->view('templates/header', $data);
     $this->load->view('templates/sidebar_admin', $data);

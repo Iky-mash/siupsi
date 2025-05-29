@@ -28,7 +28,7 @@ class Mahasiswa extends CI_Controller{
   
 
      public function index() {
-        $data['title'] = 'Dashboard Mahasiswa';
+        $data['title'] = 'Dashboard';
         
         // Ambil data mahasiswa beserta nama pembimbingnya
         $mahasiswa_data = $this->Mahasiswa_model->get_mahasiswa_with_pembimbing();
@@ -108,7 +108,7 @@ class Mahasiswa extends CI_Controller{
 // application/controllers/Mahasiswa.php (atau controller yang relevan)
 
 public function jadwal_ujian() {
-    $data['title'] = 'Pengajuan Jadwal Ujian';
+    $data['title'] = 'Jadwal Ujian';
     $mahasiswa_id = $this->session->userdata('id');
 
     // Load Mahasiswa_model (bisa juga di autoload atau constructor controller)
@@ -209,7 +209,7 @@ public function cetak_pdf($id_jadwal)
     
      public function riwayat_pengajuan() {
         // Ambil ID mahasiswa dari session
-          $data['title'] = 'Riwayat Pengajuan Ujian';
+          $data['title'] = 'Riwayat Ujian';
         $mahasiswa_id = $this->session->userdata('id');
 
         // Ambil detail mahasiswa

@@ -127,7 +127,7 @@ $page_title = isset($title) ? htmlspecialchars($title, ENT_QUOTES, 'UTF-8') : 'K
                 </div>
             <?php endif; ?>
 
-            <div class="bg-white p-4 sm:p-6 rounded-xl shadow-2xl">
+            <div class="bg-white p-4 sm:p-6 rounded-xl z-100">
                 <div id="calendar" class="text-sm"></div>
             </div>
         </div>

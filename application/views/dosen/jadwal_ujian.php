@@ -34,7 +34,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <?php foreach ($jadwal_ujian as $jadwal) : ?>
                 <?php // Add 'relative' class to the main card div for absolute positioning of the reschedule button ?>
-                <div class="bg-white shadow-xl rounded-lg overflow-hidden flex flex-col transform hover:scale-105 transition-transform duration-300 ease-in-out relative">
+                <div class="bg-white shadow-xl rounded-lg overflow-hidden flex flex-col transform hover:scale-105 transition-transform duration-300 ease-in-out ">
                     
                     <?php
                     // Prepare variables needed for conditions

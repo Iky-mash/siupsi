@@ -53,7 +53,18 @@
 </div>
 <!-- end cards -->
 </main>
-
+<script>
+function toggleForm() {
+  const formJadwal = document.getElementById('form-jadwal');
+  if (formJadwal) {
+    formJadwal.classList.toggle('hidden');
+  } else {
+    console.error("Elemen dengan ID 'form-jadwal' tidak ditemukan.");
+  }
+}
+</script>
+<script src="assets/js/sidenav-burger.js"></script>
+    <script src="assets/js/dropdown.js"></script>
 </body>
 <!-- plugin for charts  -->
 <script src="<?= base_url() ?>assets/js/core/popper.min.js"></script> 

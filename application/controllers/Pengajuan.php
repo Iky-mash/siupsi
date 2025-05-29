@@ -39,7 +39,7 @@ class Pengajuan extends CI_Controller {
     public function index() {
      
         // This method will display the form
-        $data['title'] = 'Form Pengajuan Ujian';
+        $data['title'] = 'Ajukan Jadwal';
         // You can pass an initial type if needed, e.g., from a query parameter
    $tipe_from_get = $this->input->get('tipe');
 $data['selected_type'] = !empty($tipe_from_get) ? $tipe_from_get : 'Sempro';
