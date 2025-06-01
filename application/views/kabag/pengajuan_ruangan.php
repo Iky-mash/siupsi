@@ -94,10 +94,9 @@
         
         <form id="updateStatusForm" action="<?= base_url('kabag/update_status') ?>" method="post">
             <input type="hidden" name="id" id="modalJadwalId">
-            <input type="hidden" name="pengajuan_id" id="modalPengajuanId">
-            <input type="hidden" name="rejection_reason" id="modalRejectionReason">
-
-            <div class="mb-4">
+            <input type="hidden" name="pengajuan_id" id="modalPengajuanId"> <input type="hidden" name="rejection_reason" id="modalRejectionReason">
+            <input type="hidden" name="new_ruangan_id" id="modalNewRuanganId">
+            <input type="hidden" name="new_ruangan_name" id="modalNewRuanganName"> <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Pilih Status Baru:</label>
                 <div class="space-y-2">
                     <div>
@@ -119,8 +118,19 @@
                 <p class="text-gray-700 font-semibold mb-3">Alasan Penolakan:</p>
                 <div class="space-y-3">
                     <div>
+                        <input type="radio" name="alasan_ditolak_radio" id="alasanRuanganTidakTersedia" value="room_unavailable" class="mr-2">
+                        <label for="alasanRuanganTidakTersedia">Ruangan yang dipilih tidak tersedia</label>
+                    </div>
+                    <div id="recommendedRoomsContainer" class="mt-2 mb-2 pl-6" style="display: none;">
+                        <p class="text-xs font-semibold text-gray-700">Pilih Rekomendasi Ruangan Lain (Tipe & Jadwal Sama):</p>
+                        <div id="recommendedRoomsList" class="space-y-1 text-xs text-gray-600 max-h-32 overflow-y-auto">
+                            </div>
+                        <p id="noRoomsMessage" class="text-xs text-red-500" style="display: none;">Tidak ada ruangan lain yang tersedia pada jadwal ini.</p>
+                        <p id="loadingRoomsMessage" class="text-xs text-blue-500" style="display: none;">Mencari ruangan...</p>
+                    </div>
+                    <div>
                         <input type="radio" name="alasan_ditolak_radio" id="alasanSemuaRuanganPenuh" value="all_rooms_full" class="mr-2">
-                        <label for="alasanSemuaRuanganPenuh">Ruangan terpakai (jadwalkan ulang otomatis)?</label>
+                        <label for="alasanSemuaRuanganPenuh">Semua ruangan penuh (jadwalkan ulang otomatis)?</label>
                     </div>
                 </div>
             </div>
@@ -133,61 +143,130 @@
     </div>
 </div>
 
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Fungsi untuk menerapkan filter
+    // ... (filter functions remain the same) ...
     function applyFilter(selectedStatus) {
+        console.log(`DEBUG applyFilter: Memulai filter untuk status = "${selectedStatus}"`);
         const rows = document.querySelectorAll('tbody tr');
-        rows.forEach(row => {
+        console.log(`DEBUG applyFilter: Ditemukan ${rows.length} baris (<tr>) di dalam <tbody>.`);
+
+        if (rows.length === 0 && document.querySelector('table tbody')) {
+            console.warn("DEBUG applyFilter: Tidak ada elemen <tr> ditemukan di dalam <tbody>. Apakah tabel sudah terisi data?");
+        }
+
+        let visibleRowCount = 0;
+        let processedRowCount = 0;
+
+        rows.forEach((row, index) => {
+            processedRowCount++;
             const rowStatus = row.getAttribute('data-status');
-            if (selectedStatus === 'all' || rowStatus === selectedStatus) {
-                row.style.display = '';
+            // Untuk log yang lebih detail pada setiap baris (aktifkan jika perlu, bisa sangat banyak):
+            // console.log(`DEBUG applyFilter: Baris ke-${index}, data-status="${rowStatus}", status filter="${selectedStatus}"`);
+
+            if (!rowStatus) {
+                console.warn(`DEBUG applyFilter: Baris ke-${index} TIDAK MEMILIKI atribut data-status.`);
+            }
+
+            // Pastikan perbandingan dilakukan dengan cara yang konsisten (misal, lowercase)
+            const conditionMet = selectedStatus.toLowerCase() === 'all' || (rowStatus && rowStatus.toLowerCase() === selectedStatus.toLowerCase());
+
+            if (conditionMet) {
+                row.style.display = 'table-row'; // Lebih eksplisit untuk tabel
+                // console.log(`DEBUG applyFilter: Baris ke-${index} (status: "${rowStatus}") ditampilkan.`);
+                visibleRowCount++;
             } else {
                 row.style.display = 'none';
+                // console.log(`DEBUG applyFilter: Baris ke-${index} (status: "${rowStatus}") disembunyikan.`);
             }
         });
+        console.log(`DEBUG applyFilter: Selesai filter untuk status "${selectedStatus}". Jumlah baris diproses: ${processedRowCount}. Jumlah baris ditampilkan: ${visibleRowCount}.`);
+        console.log("-------------------------------------------");
     }
 
     // Atur event listener untuk tombol filter
-    document.querySelectorAll('.btn-filter').forEach(button => {
+    const filterButtons = document.querySelectorAll('.btn-filter');
+    console.log(`DEBUG Setup: Ditemukan ${filterButtons.length} tombol dengan class '.btn-filter'.`);
+    if (filterButtons.length === 0) {
+        console.warn("DEBUG Setup: TIDAK ADA tombol dengan class '.btn-filter' ditemukan. Periksa nama class pada tombol filter Anda di HTML.");
+    }
+
+    filterButtons.forEach(button => {
         button.addEventListener('click', () => {
-            const selectedStatus = button.getAttribute('data-status').toLowerCase();
+            const statusFromButton = button.getAttribute('data-status');
+            if (!statusFromButton) {
+                console.error("DEBUG Klik Filter: Tombol filter yang diklik tidak memiliki atribut 'data-status'. Tombol:", button);
+                return;
+            }
+            const selectedStatus = statusFromButton.toLowerCase(); // Ambil dan ubah ke lowercase
+            console.log(`DEBUG Klik Filter: Tombol filter diklik, status yang dipilih: "${selectedStatus}"`);
             applyFilter(selectedStatus);
         });
     });
 
     // Terapkan filter default "Menunggu" saat halaman dimuat
-    const defaultFilterStatus = 'menunggu';
-    applyFilter(defaultFilterStatus);
+    console.log("DEBUG Setup: Menerapkan filter default 'menunggu' saat halaman dimuat.");
+    applyFilter('menunggu');
 
-    // --- Sisa Modal script Anda tetap sama ---
+
     const modal = document.getElementById('statusUpdateModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
     const cancelModalBtn = document.getElementById('cancelModalBtn');
     const updateStatusForm = document.getElementById('updateStatusForm');
     const modalJadwalId = document.getElementById('modalJadwalId');
-    const modalPengajuanId = document.getElementById('modalPengajuanId'); // Ambil elemen ini
+    const modalPengajuanId = document.getElementById('modalPengajuanId');
     const modalRejectionReason = document.getElementById('modalRejectionReason');
+    const modalNewRuanganId = document.getElementById('modalNewRuanganId');
+    const modalNewRuanganName = document.getElementById('modalNewRuanganName');
     
     const statusMenungguRadio = document.getElementById('statusMenunggu');
     const statusDikonfirmasiRadio = document.getElementById('statusDikonfirmasi');
     const statusDitolakRadio = document.getElementById('statusDitolak');
     
     const ditolakOptionsDiv = document.getElementById('ditolakOptions');
+    const alasanRuanganTidakTersediaRadio = document.getElementById('alasanRuanganTidakTersedia');
     const alasanSemuaRuanganPenuhRadio = document.getElementById('alasanSemuaRuanganPenuh');
 
-    // let currentTipeUjian = ''; // Anda bisa uncomment jika masih diperlukan
-    // let currentTanggal = '';   // Anda bisa uncomment jika masih diperlukan
-    // let currentSlotWaktu = ''; // Anda bisa uncomment jika masih diperlukan
+    const recommendedRoomsContainer = document.getElementById('recommendedRoomsContainer');
+    const recommendedRoomsList = document.getElementById('recommendedRoomsList');
+    const noRoomsMessage = document.getElementById('noRoomsMessage');
+    const loadingRoomsMessage = document.getElementById('loadingRoomsMessage');
+
+    let currentTipeUjian = ''; 
+    let currentTanggal = '';  
+    let currentSlotWaktu = ''; 
+
+    function resetModalState() {
+        // Reset status radios based on actual current status (done in btn-update-status click)
+        // Reset Ditolak options
+        ditolakOptionsDiv.style.display = 'none';
+        alasanRuanganTidakTersediaRadio.checked = false;
+        alasanSemuaRuanganPenuhRadio.checked = false; 
+        modalRejectionReason.value = '';
+
+        // Reset recommendation section
+        recommendedRoomsContainer.style.display = 'none';
+        recommendedRoomsList.innerHTML = '';
+        noRoomsMessage.style.display = 'none';
+        loadingRoomsMessage.style.display = 'none';
+        modalNewRuanganId.value = '';
+        modalNewRuanganName.value = '';
+        
+        // Clear any dynamically added radio buttons for recommended rooms
+        const oldRecommendedRadios = document.querySelectorAll('input[name="recommended_room_option"]');
+        oldRecommendedRadios.forEach(radio => radio.removeEventListener('change', handleRecommendedRoomSelection)); // Clean up listeners if any were attached directly like this before
+        recommendedRoomsList.innerHTML = ''; // Clear list content
+    }
 
     document.querySelectorAll('.btn-update-status').forEach(button => {
         button.addEventListener('click', () => {
+            resetModalState(); // Reset state first
+
             modalJadwalId.value = button.dataset.id;
-            modalPengajuanId.value = button.dataset.pengajuanId || ''; // Isi pengajuanId
-            // currentTipeUjian = button.dataset.tipeUjian; 
-            // currentTanggal = button.dataset.tanggal;     
-            // currentSlotWaktu = button.dataset.slotWaktu; 
+            modalPengajuanId.value = button.dataset.pengajuanId || '';
+            currentTipeUjian = button.dataset.tipeUjian; 
+            currentTanggal = button.dataset.tanggal;     
+            currentSlotWaktu = button.dataset.slotWaktu; 
 
             const currentStatus = button.dataset.currentStatus;
             if (currentStatus === 'menunggu') statusMenungguRadio.checked = true;
@@ -199,15 +278,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusDitolakRadio.checked = false;
             }
             
-            // Reset Ditolak options
-            ditolakOptionsDiv.style.display = 'none';
-            alasanSemuaRuanganPenuhRadio.checked = false; 
-            modalRejectionReason.value = '';
-
-            // Show Ditolak options if 'Ditolak' is pre-selected or selected
+            // Trigger change on status radios to ensure dependent UI updates correctly
+            // This is important if statusDitolakRadio is checked, to show ditolakOptionsDiv
             if (statusDitolakRadio.checked) {
-                ditolakOptionsDiv.style.display = 'block';
+                 ditolakOptionsDiv.style.display = 'block';
+            } else {
+                 ditolakOptionsDiv.style.display = 'none';
             }
+            // If currentStatus is Ditolak, you might want to pre-select the reason if it's stored
+            // and potentially show recommendations if the reason was 'room_unavailable'.
+            // For now, we keep it simple: options are shown, user re-selects reason.
 
             modal.style.display = 'flex';
         });
@@ -216,40 +296,153 @@ document.addEventListener('DOMContentLoaded', () => {
     closeModalBtn.addEventListener('click', () => modal.style.display = 'none');
     cancelModalBtn.addEventListener('click', () => modal.style.display = 'none');
     window.addEventListener('click', (event) => {
-        if (event.target === modal) {
-            modal.style.display = 'none';
-        }
+        if (event.target === modal) modal.style.display = 'none';
     });
 
+    // Main status radio change listeners
     [statusMenungguRadio, statusDikonfirmasiRadio, statusDitolakRadio].forEach(radio => {
         radio.addEventListener('change', function() {
             if (this.id === 'statusDitolak' && this.checked) {
                 ditolakOptionsDiv.style.display = 'block';
+                // If user explicitly selects "Ditolak", clear any new room choice
+                modalNewRuanganId.value = '';
+                modalNewRuanganName.value = '';
+                // Uncheck recommended room radios if any were dynamically added & checked
+                const recommendedRadios = recommendedRoomsList.querySelectorAll('input[name="recommended_room_option"]');
+                recommendedRadios.forEach(rr => rr.checked = false);
             } else {
                 ditolakOptionsDiv.style.display = 'none';
-                alasanSemuaRuanganPenuhRadio.checked = false; 
+                alasanRuanganTidakTersediaRadio.checked = false;
+                alasanSemuaRuanganPenuhRadio.checked = false;
                 modalRejectionReason.value = '';
+                recommendedRoomsContainer.style.display = 'none';
+            }
+        });
+    });
+    
+    // "Alasan Ditolak" radio change listeners
+    [alasanRuanganTidakTersediaRadio, alasanSemuaRuanganPenuhRadio].forEach(radio => {
+        radio.addEventListener('change', function() {
+            recommendedRoomsContainer.style.display = 'none'; // Hide by default
+            if (this.id === 'alasanRuanganTidakTersedia' && this.checked) {
+                recommendedRoomsContainer.style.display = 'block';
+                fetchRecommendedRooms();
+            } else { // For 'alasanSemuaRuanganPenuh' or if 'alasanRuanganTidakTersedia' is unchecked
+                 // Clear new room selection if the reason changes from "room_unavailable"
+                modalNewRuanganId.value = '';
+                modalNewRuanganName.value = '';
+                const recRadios = recommendedRoomsList.querySelectorAll('input[name="recommended_room_option"]');
+                recRadios.forEach(rr => rr.checked = false);
             }
         });
     });
 
+    function handleRecommendedRoomSelection(event) {
+        if (event.target.checked) {
+            modalNewRuanganId.value = event.target.value;
+            modalNewRuanganName.value = event.target.dataset.roomName;
+
+            // Automatically set status to "Dikonfirmasi"
+            statusDikonfirmasiRadio.checked = true;
+            
+            // Ensure "Ditolak" is unchecked and its options (including recommendations) are hidden
+            statusDitolakRadio.checked = false;
+            ditolakOptionsDiv.style.display = 'none'; 
+            modalRejectionReason.value = ''; // Clear any rejection reason
+            // Uncheck sub-reason radios
+            alasanRuanganTidakTersediaRadio.checked = false;
+            alasanSemuaRuanganPenuhRadio.checked = false;
+            recommendedRoomsContainer.style.display = 'none'; // Hide the list after selection
+        }
+    }
+
+    function fetchRecommendedRooms() {
+        recommendedRoomsList.innerHTML = ''; 
+        noRoomsMessage.style.display = 'none';
+        loadingRoomsMessage.style.display = 'block';
+
+        if (!currentTipeUjian || !currentTanggal || !currentSlotWaktu) {
+            loadingRoomsMessage.style.display = 'none';
+            recommendedRoomsList.innerHTML = '<li class="text-red-500">Error: Data jadwal tidak lengkap.</li>';
+            return;
+        }
+        const params = new URLSearchParams({
+            tipe_ujian: currentTipeUjian,
+            tanggal: currentTanggal,
+            slot_waktu: currentSlotWaktu
+        });
+
+        fetch(`<?= base_url('kabag/get_recommended_rooms') ?>?${params.toString()}`, {
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            loadingRoomsMessage.style.display = 'none';
+            if (data && data.length > 0) {
+                data.forEach(room => {
+                    const roomDiv = document.createElement('div');
+                    roomDiv.className = 'py-1';
+                    const radioId = `room_opt_${room.id}`;
+                    roomDiv.innerHTML = `
+                        <input type="radio" name="recommended_room_option" value="${room.id}" id="${radioId}" class="mr-1" data-room-name="${room.nama_ruangan}">
+                        <label for="${radioId}" class="cursor-pointer hover:text-blue-600">${room.nama_ruangan} (Kapasitas: ${room.kapasitas}, Tipe: ${room.tipe_seminar})</label>
+                    `;
+                    recommendedRoomsList.appendChild(roomDiv);
+                    // Attach event listener to the newly created radio button
+                    document.getElementById(radioId).addEventListener('change', handleRecommendedRoomSelection);
+                });
+            } else {
+                noRoomsMessage.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            loadingRoomsMessage.style.display = 'none';
+            console.error('Error fetching recommended rooms:', error);
+            recommendedRoomsList.innerHTML = '<li class="text-red-500">Gagal memuat rekomendasi.</li>';
+        });
+    }
+
     updateStatusForm.addEventListener('submit', function(event) {
-        const selectedStatus = document.querySelector('input[name="status_konfirmasi"]:checked');
-        if (!selectedStatus) {
+        const selectedStatusRadio = document.querySelector('input[name="status_konfirmasi"]:checked');
+        if (!selectedStatusRadio) {
             event.preventDefault();
             alert('Silakan pilih status baru.');
             return;
         }
 
-        if (selectedStatus.value === 'Ditolak') {
-            const selectedAlasan = document.querySelector('input[name="alasan_ditolak_radio"]:checked');
-            if (!selectedAlasan) {
-                event.preventDefault();
-                alert('Jika status "Ditolak", silakan pilih alasan penolakan.');
-                return;
+        const selectedStatusValue = selectedStatusRadio.value;
+
+        // If a new room has been selected, the status should be 'Dikonfirmasi'
+        if (modalNewRuanganId.value && selectedStatusValue !== 'Dikonfirmasi') {
+            // This case should ideally be prevented by the JS that auto-selects 'Dikonfirmasi'
+            // but as a fallback:
+            alert('Jika memilih ruangan rekomendasi, status akan otomatis Dikonfirmasi.');
+            statusDikonfirmasiRadio.checked = true; // Force it
+             // Ensure Ditolak options are hidden if this rare case happens
+            ditolakOptionsDiv.style.display = 'none';
+            modalRejectionReason.value = '';
+        }
+
+
+        if (selectedStatusValue === 'Ditolak') {
+            // Only require rejection reason if no new room is chosen (new_ruangan_id is empty)
+            if (!modalNewRuanganId.value) {
+                const selectedAlasan = document.querySelector('input[name="alasan_ditolak_radio"]:checked');
+                if (!selectedAlasan) {
+                    event.preventDefault();
+                    alert('Jika status "Ditolak" dan tidak memilih ruangan rekomendasi, silakan pilih alasan penolakan.');
+                    return;
+                }
+                modalRejectionReason.value = selectedAlasan.value;
+            } else {
+                // If new room is chosen, Ditolak status is overridden, so clear rejection reason
+                modalRejectionReason.value = '';
             }
-            modalRejectionReason.value = selectedAlasan.value;
-        } else {
+        } else { // If status is not Ditolak (e.g. Menunggu or Dikonfirmasi, possibly with new room)
             modalRejectionReason.value = ''; 
         }
     });

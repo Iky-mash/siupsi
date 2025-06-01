@@ -122,7 +122,7 @@
                 </a>
             </li>
             <li class="mt-0.5 w-full">
-                <a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors dark:text-white dark:opacity-80 hover:bg-blue-500 dark:hover:bg-blue-600 hover:text-white dark:hover:text-slate-100 rounded-lg" href="<?= base_url('kabag/kelola') ?>">
+                <a class="py-2.7 text-sm ease-nav-brand my-0 mx-4 flex items-center whitespace-nowrap px-4 transition-colors dark:text-white dark:opacity-80 hover:bg-blue-500 dark:hover:bg-blue-600 hover:text-white dark:hover:text-slate-100 rounded-lg" href="<?= base_url('kabag/profil') ?>">
                     <div class="shadow-soft-2xl mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-white dark:bg-slate-700 bg-center stroke-0 text-center xl:p-2.5">
                         <svg width="12px" height="12px" viewBox="0 0 40 44" class="fill-slate-700 dark:fill-slate-300">
                             <title>document</title>

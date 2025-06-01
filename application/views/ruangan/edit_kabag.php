@@ -1,7 +1,10 @@
+
+<div class="min-h-screen">
+
 <div class="container mx-auto px-4 py-8">
   <div class="max-w-2xl mx-auto bg-white p-6 sm:p-8 rounded-2xl shadow-soft-xl">
     <h2 class="text-2xl lg:text-3xl font-bold text-slate-700 mb-6 text-center">Edit Ruangan</h2>
-    <form method="post" action="<?php echo site_url('ruangan/update/'.$ruangan->id); ?>">
+    <form method="post" action="<?php echo site_url('ruangan/update_kabag/'.$ruangan->id); ?>">
       
       <div class="mb-5">
         <label for="nama_ruangan" class="block mb-2 ml-1 font-bold text-xs text-slate-700 uppercase">Nama Ruangan</label>
@@ -55,3 +58,5 @@
     </form>
   </div>
 </div>
+</div>
+

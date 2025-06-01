@@ -1,4 +1,4 @@
-<div class="flex flex-wrap -mx-3 mt-6">
+<div class="min-h-screen flex flex-col px-6 py-6 mx-auto">
     <div class="flex-none w-full max-w-full px-3">
         <div class="relative flex flex-col min-w-0 break-words bg-white border-0 border-transparent border-solid shadow-soft-xl rounded-2xl bg-clip-border">
             <div class="p-6 pb-0 mb-0 bg-white border-b-0 border-b-solid rounded-t-2xl border-b-transparent">
@@ -15,7 +15,7 @@
                     <input type="email" id="email" name="email" value="<?= isset($dosen_edit) ? htmlspecialchars($dosen_edit->email) : ''; ?>" class="block w-full px-3 py-2 text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-slate-500">
                 </div>
                 <div class="mb-4">
-                    <label for="nip" class="block text-xs font-bold uppercase text-slate-400 mb-2">NIP</label>
+                    <label for="nip" class="block text-xs font-bold uppercase text-slate-400 mb-2">NIK</label>
                     <input type="text" id="nip" name="nip" value="<?= isset($dosen_edit) ? htmlspecialchars($dosen_edit->nip) : ''; ?>" class="block w-full px-3 py-2 text-sm border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-slate-500">
                 </div>
                 <div class="flex justify-end">

@@ -19,7 +19,7 @@ class Admin extends CI_Controller {
         $this->load->model('Pekan_model');
         $this->load->model('Ruangan_model');//ruangan
         if_logged_in();
-        check_role(['Admin']); 
+        check_role(['Admin', 'Ruangan']); 
     }
     public function index() {
         $data['title'] = 'Dashboard Admin';
@@ -214,6 +214,7 @@ public function download_laporan_seminar() {
         $this->load->view('templates/footer');
     }
       public function tambah_dosen() {
+         $data['title'] = 'Tambah Data Dosen';
         // Aturan validasi
         $this->form_validation->set_rules('nama', 'Nama Lengkap', 'required|trim');
         // Validasi email: required, valid_email, dan is_unique (cek di tabel 'dosen' kolom 'email')
@@ -465,6 +466,7 @@ public function download_laporan_seminar() {
     //DOSEN
     public function edit_dosen($id)
     {
+         $data['title'] = 'Edit Data Dosen';
         $data['dosen_edit'] = $this->Dosen_model->get_dosen_by_id($id);
         $data['dosen'] = $this->Dosen_model->get_all_dosen();
 

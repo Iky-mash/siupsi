@@ -15,7 +15,7 @@
           <td class="px-6 py-4 w-2/3 break-words"><?= $dosen->email; ?></td>
         </tr>
         <tr>
-          <th class="text-left px-6 py-4 bg-gray-100 font-semibold w-1/3 align-top">NIP</th>
+          <th class="text-left px-6 py-4 bg-gray-100 font-semibold w-1/3 align-top">NIK</th>
           <td class="px-6 py-4 w-2/3 break-words"><?= $dosen->nip; ?></td>
         </tr>
       </tbody>

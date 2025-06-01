@@ -15,7 +15,7 @@
                             <th class="border border-gray-300 px-4 py-2 text-sm font-semibold text-center">No</th>
                             <th class="border border-gray-300 px-4 py-2 text-sm font-semibold text-center">Nama</th>
                             <th class="border border-gray-300 px-4 py-2 text-sm font-semibold text-center">Email</th>
-                            <th class="border border-gray-300 px-4 py-2 text-sm font-semibold text-center">NIP</th>
+                            <th class="border border-gray-300 px-4 py-2 text-sm font-semibold text-center">NIK</th>
                             <th class="border border-gray-300 px-4 py-2 text-sm font-semibold text-center">Action</th>
                         </tr>
                     </thead>

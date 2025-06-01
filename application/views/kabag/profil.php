@@ -41,7 +41,7 @@
                 <div><?= $kabag['nama'] ?></div>
             </div>
             <div class="flex">
-                <div class="w-40 text-gray-600">NIP</div>
+                <div class="w-40 text-gray-600">NIK</div>
                 <div class="w-3 text-gray-600">:</div>
                 <div><?= $kabag['nip'] ?></div>
             </div>
