@@ -45,7 +45,7 @@ if (!isset($dosen_options)) {
                         <label for="nim" class="block text-sm font-semibold text-gray-600 mb-1">NIM</label>
                         <input type="text" name="nim" id="nim" value="<?= isset($mahasiswa->nim) ? htmlspecialchars($mahasiswa->nim) : '' ?>" class="block w-full px-3 py-2 mt-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-150 ease-in-out" required placeholder="Masukkan NIM">
                     </div>
-
+                   
                     <div>
                         <label for="fakultas" class="block text-sm font-semibold text-gray-600 mb-1">Fakultas</label>
                         <input type="text" name="fakultas" id="fakultas" value="<?= isset($mahasiswa->fakultas) ? htmlspecialchars($mahasiswa->fakultas) : '' ?>" class="block w-full px-3 py-2 mt-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Masukkan nama fakultas">
@@ -55,6 +55,11 @@ if (!isset($dosen_options)) {
                         <label for="prodi" class="block text-sm font-semibold text-gray-600 mb-1">Program Studi</label>
                         <input type="text" name="prodi" id="prodi" value="<?= isset($mahasiswa->prodi) ? htmlspecialchars($mahasiswa->prodi) : '' ?>" class="block w-full px-3 py-2 mt-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-150 ease-in-out" placeholder="Masukkan nama program studi">
                     </div>
+
+                     <div>
+                            <label for="tahun_masuk" class="block text-sm font-semibold text-gray-600 mb-1">Tahun Masuk</label>
+                            <input type="number" name="tahun_masuk" id="tahun_masuk" value="<?= isset($mahasiswa->tahun_masuk) ? htmlspecialchars($mahasiswa->tahun_masuk) : '' ?>" class="block w-full px-3 py-2 mt-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-500 transition duration-150 ease-in-out" required placeholder="Contoh: 2021" min="2000" max="2099">
+                        </div>
 
                     <div>
                         <label for="judul_skripsi" class="block text-sm font-semibold text-gray-600 mb-1">Judul Skripsi</label>

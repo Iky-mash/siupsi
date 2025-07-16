@@ -15,7 +15,7 @@
 
             <div class="flex items-center mt-2 grow sm:mt-0 md:ml-auto lg:flex lg:basis-auto">
                 <ul class="flex flex-row items-center justify-end w-full pl-0 mb-0 list-none">
-                    <li class="flex items-center px-2 md:px-4 relative"> 
+                   <!-- <li class="flex items-center px-2 md:px-4 relative"> 
                         <a href="javascript:;" class="block p-0 transition-all text-sm ease-nav-brand text-slate-500 dark:text-slate-300 hover:text-blue-500 dark:hover:text-blue-400" id="notification-dropdown-trigger" aria-expanded="false">
                             <i class="cursor-pointer fa fa-bell text-lg"></i>
                         </a>
@@ -40,7 +40,7 @@
                             </li>
                           
                         </ul>
-                    </li>
+                    </li>-->
 
                     <li class="flex items-center pl-2 pr-1 xl:hidden relative">
                         <button id="hamburger-button" aria-label="Open Menu" class="p-1.5 transition-colors duration-150 ease-in-out rounded-md text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 dark:focus:ring-offset-slate-900">

@@ -67,22 +67,60 @@ class Pengajuan_model extends CI_Model {
         $query = $this->db->get();
         return $query->row(); // Mengembalikan satu baris data sebagai objek
     }
- public function get_all_pengajuan_for_kabag_review() {
-        $this->db->select('
-            pup.id AS pengajuan_id, pup.judul_skripsi, pup.tipe_ujian, pup.tanggal_pengajuan, pup.status, pup.alasan_penolakan,
-            m.nama AS nama_mahasiswa, m.nim AS nim_mahasiswa
-        ');
-        $this->db->from('pengajuan_ujian_prioritas pup');
-        $this->db->join('mahasiswa m', 'pup.mahasiswa_id = m.id');
-        // Filter pengajuan yang relevan untuk Kabag, misalnya yang masih 'draft'
-        // atau semua jika Kabag bisa mereview ulang yang sudah diproses.
-        $this->db->where('pup.status', 'draft'); // Contoh: Hanya yang draft
-        // Atau jika ingin menampilkan semua untuk bisa ditolak ulang:
-        // $this->db->where_in('pup.status', ['draft', 'dikonfirmasi']);
-        $this->db->order_by('pup.tanggal_pengajuan', 'ASC'); // Tampilkan yang paling lama dulu
-        $query = $this->db->get();
-        return $query->result();
-    }
+public function get_all_pengajuan_for_kabag_review() {
+    // Ambil tahun saat ini
+    $current_year = date('Y');
+
+    // Query SELECT tetap sama
+    $this->db->select("
+        pup.id AS pengajuan_id, pup.judul_skripsi, pup.tipe_ujian, pup.tanggal_pengajuan, pup.status, pup.alasan_penolakan,
+        m.nama AS nama_mahasiswa, m.nim AS nim_mahasiswa, m.tahun_masuk,
+        (
+            (CASE
+                WHEN ($current_year - m.tahun_masuk) >= 7 THEN 5
+                WHEN ($current_year - m.tahun_masuk) = 6 THEN 4
+                WHEN ($current_year - m.tahun_masuk) = 5 THEN 3
+                WHEN ($current_year - m.tahun_masuk) = 4 THEN 2
+                ELSE 1
+            END)
+        ) AS nilai_ms,
+        (
+            (CASE
+                WHEN ($current_year - m.tahun_masuk) >= 7 THEN 5
+                WHEN ($current_year - m.tahun_masuk) = 6 THEN 4
+                WHEN ($current_year - m.tahun_masuk) = 5 THEN 3
+                WHEN ($current_year - m.tahun_masuk) = 4 THEN 2
+                ELSE 1
+            END) * 5 + 
+            (CASE
+                WHEN pup.tipe_ujian = 'Semhas' THEN 3
+                ELSE 1
+            END) * 3
+        ) AS priority_score
+    ");
+
+    $this->db->from('pengajuan_ujian_prioritas pup');
+    $this->db->join('mahasiswa m', 'pup.mahasiswa_id = m.id', 'left');
+
+    // ============================================
+    // ==         PERUBAHAN FINAL DI SINI          ==
+    // ============================================
+    // 1. Hanya ambil status yang masih aktif dalam antrean review/jadwal
+    $this->db->where_in('pup.status', ['draft', 'dikonfirmasi']);
+    
+    // 2. DAN pastikan pengajuan tersebut BELUM memiliki jadwal
+    $this->db->where('pup.jadwal_id IS NULL', null, false);
+    
+    // Urutan tetap berdasarkan prioritas
+    $this->db->order_by('priority_score', 'DESC');
+    $this->db->order_by('pup.tanggal_pengajuan', 'ASC');
+
+    $query = $this->db->get();
+    return $query->result();
+}
+public function get_pending_application_count() {
+    return $this->db->where('status', 'draft')->count_all_results('pengajuan_ujian_prioritas');
+}
 
     /**
      * Mengambil detail berkas untuk satu pengajuan.
@@ -90,17 +128,10 @@ class Pengajuan_model extends CI_Model {
      * @param string $tipe_ujian ('Sempro' atau 'Semhas')
      * @return object|null Objek berisi path file-file atau null
      */
-    public function get_detail_berkas_by_pengajuan_id($pengajuan_id, $tipe_ujian) {
-        if ($tipe_ujian == 'Sempro') {
-            $this->db->from('berkas_sempro');
-        } elseif ($tipe_ujian == 'Semhas') {
-            $this->db->from('berkas_semhas');
-        } else {
-            return null; // Tipe ujian tidak valid
-        }
-        $this->db->where('pengajuan_id', $pengajuan_id);
-        $query = $this->db->get();
-        return $query->row(); // Mengembalikan satu baris data berkas
+  public function get_detail_berkas_by_pengajuan_id($pengajuan_id, $tipe_ujian) {
+        // Logika fungsi ini tidak perlu diubah
+        $table = ($tipe_ujian == 'Sempro') ? 'berkas_sempro' : 'berkas_semhas';
+        return $this->db->get_where($table, ['pengajuan_id' => $pengajuan_id])->row();
     }
 
     /**

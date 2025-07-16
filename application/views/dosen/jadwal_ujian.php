@@ -31,7 +31,7 @@
     <?php endif; ?>
 
     <?php if (!empty($jadwal_ujian)) : ?>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             <?php foreach ($jadwal_ujian as $jadwal) : ?>
                 <?php // Add 'relative' class to the main card div for absolute positioning of the reschedule button ?>
                 <div class="bg-white shadow-xl rounded-lg overflow-hidden flex flex-col transform hover:scale-105 transition-transform duration-300 ease-in-out ">
@@ -77,7 +77,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M12 15h.01M12 12h.01" />
                             </svg>
-                            Reschedule
+                            
                         </a>
                     <?php endif; ?>
 

@@ -11,7 +11,7 @@
                     </script>
                     made with <i class="fa fa-heart"></i> by
                     <a
-                        href="https://www.creative-tim.com"
+                        href="#"
                         class="font-semibold text-slate-700"
                         target="_blank">Subkhi Mashadi</a>
                     for a better web.
@@ -23,25 +23,25 @@
                     class="flex flex-wrap justify-center pl-0 mb-0 list-none lg:justify-end">
                     <li class="nav-item">
                         <a
-                            href="https://www.creative-tim.com"
+                            href="#"
                             class="block px-4 pt-0 pb-1 font-normal transition-colors ease-soft-in-out text-sm text-slate-500"
                             target="_blank">Creative Tim</a>
                     </li>
                     <li class="nav-item">
                         <a
-                            href="https://www.creative-tim.com/presentation"
+                            href="#"
                             class="block px-4 pt-0 pb-1 font-normal transition-colors ease-soft-in-out text-sm text-slate-500"
                             target="_blank">About Us</a>
                     </li>
                     <li class="nav-item">
                         <a
-                            href="https://creative-tim.com/blog"
+                            href="#"
                             class="block px-4 pt-0 pb-1 font-normal transition-colors ease-soft-in-out text-sm text-slate-500"
                             target="_blank">Blog</a>
                     </li>
                     <li class="nav-item">
                         <a
-                            href="https://www.creative-tim.com/license"
+                            href="#"
                             class="block px-4 pt-0 pb-1 pr-0 font-normal transition-colors ease-soft-in-out text-sm text-slate-500"
                             target="_blank">License</a>
                     </li>

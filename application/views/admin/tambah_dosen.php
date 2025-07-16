@@ -67,12 +67,7 @@
             <?php echo form_error('nip', '<div class="error">', '</div>'); ?>
         </div>
 
-        <div class="form-group">
-            <label for="role_id">Role ID: (Role ID dosen = 2)</label>
-            <input type="number" name="role_id" id="role_id" value="<?php echo set_value('role_id', '2'); // Default value 2 sesuai data Anda ?>" required>
-            <?php echo form_error('role_id', '<div class="error">', '</div>'); ?>
-        </div>
-
+       
         <div class="form-group">
             <input type="submit" value="Simpan Data Dosen">
         </div>

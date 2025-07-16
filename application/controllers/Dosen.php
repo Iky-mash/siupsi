@@ -380,134 +380,138 @@ public function riwayat_ujian() {
    
 
    public function process_reschedule_request() {
-        // Atur aturan validasi
-        $this->form_validation->set_rules('original_jadwal_id', 'ID Jadwal Asli', 'required|numeric',
-            ['required' => '%s harus diisi.', 'numeric' => '%s harus berupa angka.']
-        );
-        $this->form_validation->set_rules('reason_reschedule', 'Alasan Penjadwalan Ulang', 'required|trim|min_length[10]',
-            [
-                'required' => '%s harus diisi.',
-                'min_length' => '%s minimal harus 10 karakter.'
-            ]
-        );
+    // 1. Atur aturan validasi
+    $this->form_validation->set_rules('original_jadwal_id', 'ID Jadwal Asli', 'required|numeric', [
+        'required' => '%s harus diisi.',
+        'numeric' => '%s harus berupa angka.'
+    ]);
+    $this->form_validation->set_rules('reason_reschedule', 'Alasan Penjadwalan Ulang', 'required|trim|min_length[10]', [
+        'required' => '%s harus diisi.',
+        'min_length' => '%s minimal harus 10 karakter.'
+    ]);
 
-        $original_jadwal_id_from_post = $this->input->post('original_jadwal_id');
+    $original_jadwal_id = $this->input->post('original_jadwal_id');
 
-        if ($this->form_validation->run() == FALSE) {
-            // Jika validasi gagal, kembalikan ke form dengan error dan input lama
-            $this->session->set_flashdata('error_form', validation_errors());
-            // Anda mungkin ingin mengirim kembali input lama ke view jika menggunakan set_value() di form
-            // Untuk saat ini, kita redirect kembali ke form. Pastikan $original_jadwal_id_from_post valid.
-            if (!empty($original_jadwal_id_from_post)) {
-                redirect('dosen/form_reschedule_ujian/' . $original_jadwal_id_from_post);
-            } else {
-                // Jika ID jadwal tidak ada di POST, redirect ke daftar jadwal
-                $this->session->set_flashdata('error', 'Terjadi kesalahan, ID jadwal tidak ditemukan.');
-                redirect('dosen/jadwal_saya'); // Sesuaikan dengan URL daftar jadwal dosen
-            }
-            return;
+    // Jika validasi gagal, kembalikan ke form
+    if ($this->form_validation->run() == FALSE) {
+        $this->session->set_flashdata('error_form', validation_errors());
+        // Redirect kembali ke form reschedule dengan ID jadwalnya
+        if (!empty($original_jadwal_id)) {
+            redirect('dosen/form_reschedule_ujian/' . $original_jadwal_id);
+        } else {
+            $this->session->set_flashdata('error', 'Terjadi kesalahan, ID jadwal tidak ditemukan.');
+            redirect('dosen/jadwal_ujian');
         }
+        return;
+    }
 
-        // Data dari form valid
-        $reason_for_reschedule = $this->input->post('reason_reschedule');
+    // Memulai transaction. Semua query setelah ini akan di-buffer.
+    $this->db->trans_start();
 
-        // Ambil ID dosen dari session menggunakan nama item yang BENAR
-        $dosen_id = $this->session->userdata('id_dosen');
-        $dosen_nama = $this->session->userdata('nama'); // Asumsikan 'nama' adalah key untuk nama dosen di session
+    // Inisialisasi variabel hasil untuk digunakan di luar scope transaction
+    $hasil_reschedule = ['success' => false, 'error' => 'Proses tidak diinisialisasi.'];
 
-        // Pengecekan ulang jika $dosen_id kosong (seharusnya sudah ditangani di __construct)
-        if (empty($dosen_id)) {
-            log_message('error', 'CRITICAL: Dosen ID (kunci: id_dosen) tidak ditemukan di session saat proses reschedule, meskipun sudah lolos __construct.');
-            $this->session->set_flashdata('error', 'Sesi Anda tidak valid. Silakan login kembali.');
-            redirect('auth');
-            return;
-        }
+    // Data dari form yang sudah valid
+    $reason_for_reschedule = $this->input->post('reason_reschedule');
+    $dosen_id = $this->session->userdata('id_dosen');
+    $dosen_nama = $this->session->userdata('nama');
 
-        // 1. Ambil data jadwal_ujian asli
-        // Pastikan method get_jadwal_by_id di Penjadwalan_model sudah menyertakan 'pengajuan_id'
-        $original_jadwal = $this->Penjadwalan_model->get_jadwal_id($original_jadwal_id_from_post);
+    // Pengecekan sesi dosen
+    if (empty($dosen_id)) {
+        log_message('error', 'CRITICAL: Dosen ID tidak ditemukan di session saat proses reschedule.');
+        $this->session->set_flashdata('error', 'Sesi Anda tidak valid. Silakan login kembali.');
+        // Tidak perlu rollback karena belum ada query, tapi redirect tetap perlu
+        redirect('auth');
+        // `trans_complete` akan dipanggil di akhir, jadi biarkan saja.
+    } else {
+        // 2. Ambil data jadwal_ujian asli (pastikan model sudah diperbaiki)
+        $original_jadwal = $this->Penjadwalan_model->get_jadwal_id($original_jadwal_id);
 
         if (!$original_jadwal || empty($original_jadwal->pengajuan_id)) {
-            log_message('error', "Proses Reschedule: Data jadwal asli ID {$original_jadwal_id_from_post} tidak ditemukan atau tidak memiliki pengajuan_id.");
+            log_message('error', "Proses Reschedule: Data jadwal asli ID {$original_jadwal_id} tidak ditemukan atau tidak memiliki pengajuan_id.");
             $this->session->set_flashdata('error', 'Data jadwal asli tidak ditemukan atau tidak valid untuk diproses.');
-            redirect('dosen/jadwal_saya');
-            return;
-        }
-        $pengajuan_id_asli = $original_jadwal->pengajuan_id;
+            // Tidak menghentikan transaction, biarkan selesai dan gagal secara alami.
+        } else {
+            $pengajuan_id_asli = $original_jadwal->pengajuan_id;
 
-        // (Opsional) Pengecekan tambahan: apakah dosen yang login adalah pembimbing dari jadwal ini?
-        // if ($original_jadwal->pembimbing_id != $dosen_id) {
-        //     log_message('warning', "Proses Reschedule: Dosen ID {$dosen_id} mencoba reschedule jadwal ID {$original_jadwal_id_from_post} yang bukan bimbingannya.");
-        //     $this->session->set_flashdata('error', 'Anda tidak berhak melakukan penjadwalan ulang untuk jadwal ini.');
-        //     redirect('dosen/jadwal_saya');
-        //     return;
-        // }
+            // 3. Tandai jadwal_ujian asli sebagai 'Ditolak' atau status lain yang relevan
+            $this->db->where('id', $original_jadwal_id);
+            $this->db->update('jadwal_ujian', [
+                'status_konfirmasi' => 'Ditolak',
+                'catatan_kabag' => 'Jadwal lama. Diajukan penjadwalan ulang oleh Dosen: ' . ($dosen_nama ?? 'ID:'.$dosen_id) . '. Alasan: ' . $reason_for_reschedule
+            ]);
+            log_message('info', "Jadwal ID {$original_jadwal_id} ditandai Ditolak karena permintaan reschedule.");
 
-        // 2. Tandai jadwal_ujian asli
-        $this->db->where('id', $original_jadwal_id_from_post);
-        $this->db->update('jadwal_ujian', [
-            'status_konfirmasi' => 'Ditolak', // Atau status lebih spesifik seperti 'Menunggu Reschedule'
-            'catatan_kabag' => 'Jadwal lama. Diajukan penjadwalan ulang oleh Dosen: ' . ($dosen_nama ?? 'ID:'.$dosen_id) . '. Alasan: ' . $reason_for_reschedule
-        ]);
-        log_message('info', "Jadwal ID {$original_jadwal_id_from_post} ditandai Ditolak karena permintaan reschedule oleh Dosen ID {$dosen_id}.");
+            // 4. Catat permintaan ini ke tabel history
+            $history_data = [
+                'original_jadwal_id' => $original_jadwal_id,
+                'requested_by_user_type' => 'dosen',
+                'requested_by_user_id' => $dosen_id,
+                'reason_for_reschedule' => $reason_for_reschedule,
+                'reschedule_status' => 'requested' // Status awal
+            ];
+            $this->db->insert('jadwal_reschedule_history', $history_data);
+            $reschedule_history_id = $this->db->insert_id();
+            log_message('info', "Permintaan reschedule dicatat di history ID {$reschedule_history_id}.");
 
-        // 3. Catat permintaan ini ke tabel jadwal_reschedule_history
-        $history_data = [
-            'original_jadwal_id' => $original_jadwal_id_from_post,
-            'requested_by_user_type' => 'dosen',
-            'requested_by_user_id' => $dosen_id,
-            'reason_for_reschedule' => $reason_for_reschedule,
-            'reschedule_status' => 'requested'
-        ];
-        $this->db->insert('jadwal_reschedule_history', $history_data);
-        $reschedule_history_id = $this->db->insert_id();
-        log_message('info', "Permintaan reschedule dicatat di history ID {$reschedule_history_id} untuk jadwal lama ID {$original_jadwal_id_from_post}.");
+            // 5. Ambil data_pengajuan lengkap untuk proses penjadwalan ulang
+            $pengajuan_data = $this->Pengajuan_model->get_pengajuan_by_id($pengajuan_id_asli);
 
-        // 4. Ambil data_pengajuan lengkap untuk fungsi penjadwalan ulang
-        $pengajuan_data = $this->Pengajuan_model->get_pengajuan_by_id($pengajuan_id_asli);
+            if (!$pengajuan_data) {
+                log_message('error', "Proses Reschedule: Data pengajuan asli (ID: {$pengajuan_id_asli}) tidak ditemukan.");
+                $this->db->where('id', $reschedule_history_id)->update('jadwal_reschedule_history', ['reschedule_status' => 'failed', 'kabag_notes' => 'Data pengajuan asli tidak ditemukan.']);
+            } else {
+                // Pastikan semua ID dosen lengkap
+                $mhs_detail = $this->Penjadwalan_model->get_mahasiswa($pengajuan_data['mahasiswa_id']);
+                if ($mhs_detail) {
+                    $pengajuan_data['pembimbing_id'] = $pengajuan_data['pembimbing_id'] ?? $mhs_detail['pembimbing_id'] ?? null;
+                    $pengajuan_data['penguji1_id'] = $pengajuan_data['penguji1_id'] ?? $mhs_detail['penguji1_id'] ?? null;
+                    $pengajuan_data['penguji2_id'] = $pengajuan_data['penguji2_id'] ?? $mhs_detail['penguji2_id'] ?? null;
+                }
 
-        if (!$pengajuan_data) {
-            log_message('error', "Proses Reschedule: Data pengajuan asli (ID: {$pengajuan_id_asli}) tidak ditemukan untuk jadwal ID {$original_jadwal_id_from_post}.");
-            $this->session->set_flashdata('error', 'Data pengajuan asli tidak ditemukan untuk proses penjadwalan ulang.');
-            $this->db->where('id', $reschedule_history_id)->update('jadwal_reschedule_history', ['reschedule_status' => 'failed', 'kabag_notes' => 'Data pengajuan asli tidak ditemukan.']);
-            redirect('dosen/jadwal_saya');
-            return;
-        }
-        
-        // Pastikan semua ID dosen (pembimbing, penguji1, penguji2) ada di $pengajuan_data
-        // Jika tidak ada langsung di tabel `pengajuan_ujian_prioritas`, ambil dari tabel `mahasiswa`.
-        if (empty($pengajuan_data['pembimbing_id']) || empty($pengajuan_data['penguji1_id']) || empty($pengajuan_data['penguji2_id'])) {
-            $mhs_detail = $this->Penjadwalan_model->get_mahasiswa($pengajuan_data['mahasiswa_id']);
-            if ($mhs_detail) {
-                $pengajuan_data['pembimbing_id'] = $pengajuan_data['pembimbing_id'] ?? $mhs_detail['pembimbing_id'] ?? null;
-                $pengajuan_data['penguji1_id'] = $pengajuan_data['penguji1_id'] ?? $mhs_detail['penguji1_id'] ?? null;
-                $pengajuan_data['penguji2_id'] = $pengajuan_data['penguji2_id'] ?? $mhs_detail['penguji2_id'] ?? null;
+                if (empty($pengajuan_data['pembimbing_id']) || empty($pengajuan_data['penguji1_id']) || empty($pengajuan_data['penguji2_id'])) {
+                    log_message('error', "Proses Reschedule: ID dosen tidak lengkap untuk pengajuan_id {$pengajuan_id_asli}.");
+                    $this->db->where('id', $reschedule_history_id)->update('jadwal_reschedule_history', ['reschedule_status' => 'failed', 'kabag_notes' => 'Data dosen pembimbing/penguji tidak lengkap pada pengajuan.']);
+                } else {
+                    // 6. Panggil logika penjadwalan ulang dari Model
+                    $catatan_untuk_jadwal_baru = "Dijadwalkan ulang otomatis atas permintaan Dosen (ID: {$dosen_id}). Jadwal lama ID: " . $original_jadwal_id;
+                    // SETELAH DIUBAH
+                    // Kirim seluruh objek $original_jadwal agar model tahu detail slot yang harus dihindari
+                    $hasil_reschedule = $this->Penjadwalan_model->attempt_reschedule_logic($pengajuan_data, $original_jadwal, $catatan_untuk_jadwal_baru);
+                    // 7. Update history berdasarkan hasil reschedule
+                    if ($hasil_reschedule['success']) {
+                        $this->db->where('id', $reschedule_history_id)->update('jadwal_reschedule_history', ['new_jadwal_id' => $hasil_reschedule['new_jadwal_id'], 'reschedule_status' => 'success']);
+                        log_message('info', "Penjadwalan ulang sukses. Jadwal baru ID: {$hasil_reschedule['new_jadwal_id']}.");
+                    } else {
+                        $this->db->where('id', $reschedule_history_id)->update('jadwal_reschedule_history', ['reschedule_status' => 'failed', 'kabag_notes' => 'Gagal mencari jadwal baru: ' . ($hasil_reschedule['error'] ?? 'Tidak ada detail error.')]);
+                        log_message('warn', "Penjadwalan ulang GAGAL. Error: " . ($hasil_reschedule['error'] ?? 'Tidak ada detail error.'));
+                    }
+                }
             }
         }
-
-        if (empty($pengajuan_data['pembimbing_id']) || empty($pengajuan_data['penguji1_id']) || empty($pengajuan_data['penguji2_id'])){
-             log_message('error', "Proses Reschedule: ID dosen tidak lengkap (pemb/p1/p2) untuk pengajuan_id {$pengajuan_id_asli}. Data: " . json_encode($pengajuan_data));
-             $this->session->set_flashdata('error', 'Data dosen pembimbing/penguji tidak lengkap untuk penjadwalan ulang otomatis.');
-             $this->db->where('id', $reschedule_history_id)->update('jadwal_reschedule_history', ['reschedule_status' => 'failed', 'kabag_notes' => 'Data dosen pembimbing/penguji tidak lengkap pada pengajuan.']);
-             redirect('dosen/jadwal_saya');
-             return;
-        }
-
-        // 5. Panggil logika penjadwalan ulang dari Penjadwalan_model
-        $catatan_untuk_jadwal_baru = "Dijadwalkan ulang otomatis atas permintaan Dosen (ID: {$dosen_id}). Jadwal lama ID: " . $original_jadwal_id_from_post;
-        // Pastikan method attempt_reschedule_logic sudah ada di Penjadwalan_model
-        $hasil_reschedule = $this->Penjadwalan_model->attempt_reschedule_logic($pengajuan_data, $original_jadwal_id_from_post, $catatan_untuk_jadwal_baru);
-
-        if ($hasil_reschedule['success']) {
-            $this->db->where('id', $reschedule_history_id)->update('jadwal_reschedule_history', ['new_jadwal_id' => $hasil_reschedule['new_jadwal_id']]);
-            $this->session->set_flashdata('success', 'Permintaan penjadwalan ulang berhasil. Jadwal baru (ID: ' . $hasil_reschedule['new_jadwal_id'] . ') telah dibuat dan menunggu konfirmasi Kabag. ' . ($hasil_reschedule['message'] ?? ''));
-            log_message('info', "Penjadwalan ulang sukses. Jadwal baru ID: {$hasil_reschedule['new_jadwal_id']}. History ID: {$reschedule_history_id}.");
-        } else {
-            $this->db->where('id', $reschedule_history_id)->update('jadwal_reschedule_history', ['reschedule_status' => 'failed', 'kabag_notes' => 'Gagal mencari jadwal baru: ' . ($hasil_reschedule['error'] ?? 'Tidak ada detail error.')]);
-            $this->session->set_flashdata('error', 'Permintaan penjadwalan ulang GAGAL: ' . ($hasil_reschedule['error'] ?? 'Tidak ada slot yang cocok.') . ". Jadwal lama telah ditandai untuk reschedule, silakan koordinasi dengan Kabag jika perlu.");
-            log_message('warn', "Penjadwalan ulang GAGAL. History ID: {$reschedule_history_id}. Error: " . ($hasil_reschedule['error'] ?? 'Tidak ada detail error.'));
-        }
-        redirect('dosen/jadwal_ujian'); // Arahkan kembali ke daftar jadwal dosen
     }
+
+    // Menyelesaikan transaction. CodeIgniter akan cek jika ada error, lalu commit atau rollback.
+    $this->db->trans_complete();
+
+    // Cek status akhir dari transaction
+    if ($this->db->trans_status() === FALSE) {
+        // Jika ada yang gagal, transaction sudah otomatis di-rollback
+        log_message('error', 'Transaction untuk reschedule jadwal ID ' . $original_jadwal_id . ' gagal dan semua query di-rollback.');
+        $this->session->set_flashdata('error', 'Terjadi kesalahan fatal pada database saat memproses permintaan Anda. Semua perubahan telah dibatalkan.');
+    } else {
+        // Transaction berhasil dieksekusi, sekarang tampilkan pesan berdasarkan hasil logikanya
+        if ($hasil_reschedule['success']) {
+            $this->session->set_flashdata('success', 'Permintaan penjadwalan ulang berhasil. Jadwal baru (ID: ' . $hasil_reschedule['new_jadwal_id'] . ') telah dibuat dan menunggu konfirmasi Kabag.');
+        } else {
+            // Cek apakah ada pesan error spesifik yang sudah di-set sebelumnya
+            if (!$this->session->flashdata('error')) {
+                $this->session->set_flashdata('error', 'Permintaan penjadwalan ulang GAGAL: ' . ($hasil_reschedule['error'] ?? 'Tidak ada slot yang cocok.') . ". Jadwal lama telah ditandai untuk reschedule, silakan koordinasi dengan Kabag.");
+            }
+        }
+    }
+
+    redirect('dosen/jadwal_ujian');
+}
         
 }

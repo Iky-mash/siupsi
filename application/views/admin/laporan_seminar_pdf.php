@@ -144,9 +144,6 @@
         <p class="no-data">Tidak ada data mahasiswa untuk ditampilkan dalam laporan.</p>
     <?php endif; ?>
 
-    <div class="footer-date">
-        Dicetak pada: <?= date('d M Y, H:i:s'); ?> WIB
-    </div>
-
+    
 </body>
 </html>

@@ -19,16 +19,21 @@ class Kabag extends CI_Controller {
         if_logged_in();
         check_role(['Kabag', 'Admin']);
 
-        
-
-
     }
     public function index() {
         $data['title'] = 'Dashboard';
     
-         $data['status_summary'] = $this->Penjadwalan_model->get_status_summary();
+          // 1. Hitung jumlah pengajuan ruangan yang menunggu
+        $data['ruangan_menunggu_total'] = $this->Penjadwalan_model->hitung_ruangan_menunggu();
 
+        // 2. Hitung jumlah pengajuan ujian yang menunggu
+        $data['pengajuan_menunggu_total'] = $this->Penjadwalan_model->hitung_pengajuan_ujian_menunggu();
+         // 3. (BARU) Hitung total mahasiswa Sempro
+    $data['total_sempro'] = $this->Penjadwalan_model->hitung_berdasarkan_tipe_ujian('sempro');
 
+    // 4. (BARU) Hitung total mahasiswa Semhas
+    $data['total_semhas'] = $this->Penjadwalan_model->hitung_berdasarkan_tipe_ujian('semhas');
+        
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar_kabag', $data);
         $this->load->view('templates/navbar', $data);
@@ -49,20 +54,23 @@ class Kabag extends CI_Controller {
             $pengajuan_list[$key]->detail_berkas = $this->Pengajuan_model->get_detail_berkas_by_pengajuan_id($pengajuan->pengajuan_id, $pengajuan->tipe_ujian);
         }
         $data['pengajuan_list'] = $pengajuan_list;
+         $data['pending_count'] = $this->Pengajuan_model->get_pending_application_count();
+
 
         // Definisikan juga konfigurasi file agar view bisa membuat link yang benar
         // Ini duplikat dari controller Pengajuan, mungkin bisa ditaruh di helper atau config
         $data['sempro_files_config'] = [
-            ['name' => 'file_ktm', 'label' => 'KTM'], ['name' => 'file_krs', 'label' => 'KRS'],
+            ['name' => 'file_ktm', 'label' => 'KTM'], ['name' => 'file_krs', 'label' => 'KRS'], ['name' => 'form_snack', 'label' => 'Formulir Snack'],
             ['name' => 'file_surat_pengesahan_proposal', 'label' => 'Surat Pengesahan Proposal'],
             ['name' => 'file_bukti_pembayaran', 'label' => 'Bukti Pembayaran'], ['name' => 'file_transkrip_nilai', 'label' => 'Transkrip Nilai'],
             ['name' => 'file_nota_dinas_pembimbing', 'label' => 'Nota Dinas Pembimbing'], ['name' => 'file_proposal_skripsi', 'label' => 'File Proposal']
         ];
         $data['semhas_files_config'] = [
-            ['name' => 'file_ktm', 'label' => 'KTM'], ['name' => 'file_krs', 'label' => 'KRS'],
-            ['name' => 'file_lembar_pengesahan_skripsi', 'label' => 'Lembar Pengesahan Skripsi'], ['name' => 'file_lembar_ec', 'label' => 'Lembar EC'],
-            ['name' => 'file_lembar_spm', 'label' => 'Lembar SPM'], ['name' => 'file_bukti_pembayaran', 'label' => 'Bukti Pembayaran'],
+            ['name' => 'file_ktm', 'label' => 'KTM'], ['name' => 'file_krs', 'label' => 'KRS'], ['name' => 'form_snack', 'label' => 'Formulir Snack'],
+            ['name' => 'file_lembar_pengesahan_skripsi', 'label' => 'Lembar Pengesahan Skripsi'], ['name' => 'file_sertifikat_ALTC', 'label' => 'Sertifikat ALTC'],
+            ['name' => 'file_sertifikat_LPBA', 'label' => 'Sertifikat LPBA'],['name' => 'lembar_SPM', 'label' => 'Lembar SPM'],['name' => 'lembar_EC', 'label' => 'Lembar EC'],
             ['name' => 'file_transkrip_nilai', 'label' => 'Transkrip Nilai'], ['name' => 'file_nota_dinas_pembimbing', 'label' => 'Nota Dinas Pembimbing'],
+            ['name' => 'lembar_bimbingan_skripsi', 'label' => 'Lembar Bimbingan Skripsi (14x Bimbingan)'], ['name' => 'lembar_keikutsertaan_sempro', 'label' => 'Lembar Keikutsertaan Sempro'],
             ['name' => 'file_draft_skripsi_final', 'label' => 'File Skripsi Final']
         ];
 
@@ -98,150 +106,116 @@ class Kabag extends CI_Controller {
     }
 
     // Memproses konfirmasi pengajuan (opsional, jika Kabag juga bisa konfirmasi)
-   public function konfirmasi_pengajuan($pengajuan_id) {
+public function konfirmasi_pengajuan($pengajuan_id) {
     if (!is_numeric($pengajuan_id)) {
         show_404();
     }
 
-    // 1. Ambil data pengajuan terlebih dahulu untuk mendapatkan mahasiswa_id yang benar
     $pengajuan = $this->Pengajuan_model->get_pengajuan_by_id($pengajuan_id);
 
     if (!$pengajuan) {
         $this->session->set_flashdata('error', 'Data pengajuan tidak ditemukan.');
-        redirect('kabag/berkas'); // Atau halaman error yang sesuai
-        return; // Hentikan eksekusi jika pengajuan tidak ada
-    }
-
-    // Ambil mahasiswa_id dari data pengajuan
-    $mahasiswa_id_pengaju = $pengajuan['mahasiswa_id']; // Ini adalah ID mahasiswa yang mengajukan
-
-    if ($this->Pengajuan_model->update_pengajuan_status($pengajuan_id, 'dikonfirmasi')) {
-        $this->session->set_flashdata('success', 'Pengajuan berhasil dikonfirmasi.');
-        // TODO: Kirim notifikasi email ke mahasiswa jika perlu
-    } else {
-        $this->session->set_flashdata('error', 'Gagal memproses konfirmasi pengajuan.');
-        redirect('kabag/berkas'); // Redirect jika update status gagal
-        return;
-    }
-
-    // Data untuk tabel konfirmasi_pengajuan
-    $data_konfirmasi = [
-        'pengajuan_id'      => $pengajuan_id,
-        'mahasiswa_id'      => $mahasiswa_id_pengaju, // Gunakan ID mahasiswa dari data pengajuan
-        'tanggal_konfirmasi'=> date('Y-m-d'),
-        'status_konfirmasi' => 'Terkonfirmasi'
-    ];
-
-    // Simpan ke tabel konfirmasi_pengajuan
-    if (!$this->db->insert('konfirmasi_pengajuan', $data_konfirmasi)) {
-        // Tangani jika insert ke konfirmasi_pengajuan gagal
-        $db_error = $this->db->error();
-        $this->session->set_flashdata('error', 'Gagal menyimpan data konfirmasi. DB Error: ' . $db_error['message']);
-        // Mungkin perlu rollback update status sebelumnya jika insert ini gagal
         redirect('kabag/berkas');
         return;
     }
 
-    // Update status di pengajuan_ujian_prioritas menjadi 'dikonfirmasi' (ini mungkin sudah dilakukan oleh update_pengajuan_status di atas, pastikan tidak duplikat)
-    // Jika update_pengajuan_status sudah mengurus ini, baris berikut bisa jadi tidak perlu:
-    // $this->db->where('id', $pengajuan_id);
-    // $this->db->update('pengajuan_ujian_prioritas', ['status' => 'dikonfirmasi']);
+    // 1. Ubah status pengajuan menjadi 'dikonfirmasi'
+    if ($this->Pengajuan_model->update_pengajuan_status($pengajuan_id, 'dikonfirmasi')) {
+        
+        // 2. Catat riwayat konfirmasi (opsional, tapi bagus untuk tracking)
+        $data_konfirmasi = [
+            'pengajuan_id'      => $pengajuan_id,
+            'mahasiswa_id'      => $pengajuan['mahasiswa_id'],
+            'tanggal_konfirmasi'=> date('Y-m-d H:i:s'),
+            'status_konfirmasi' => 'Terkonfirmasi'
+        ];
+        $this->db->insert('konfirmasi_pengajuan', $data_konfirmasi);
+        
+        $this->session->set_flashdata('success', 'Pengajuan berhasil dikonfirmasi.');
 
-    // Panggil fungsi penjadwalan otomatis
-    // Data $pengajuan sudah kita dapatkan di awal, jadi bisa langsung digunakan
-    $this->penjadwalan_otomatis($pengajuan);
+    } else {
+        $this->session->set_flashdata('error', 'Gagal memproses konfirmasi pengajuan.');
+    }
+    
+    // 3. HAPUS PANGGILAN PENJADWALAN OTOMATIS DARI SINI
+    // $this->penjadwalan_otomatis($pengajuan, $pengajuan_id); // Baris ini dihapus
 
     redirect('kabag/berkas');
 }
 
- private function penjadwalan_otomatis($pengajuan) {
-        $mhs_id    = $pengajuan['mahasiswa_id'];
-        $tipe      = $pengajuan['tipe_ujian'];
-        $peng_id   = $pengajuan['id'];
+
+// GANTI JUGA FUNGSI LAMA ANDA DENGAN YANG INI
+private function penjadwalan_otomatis($pengajuan, $id_pengajuan_asli) {
+    // Fungsi ini sekarang menerima parameter kedua: $id_pengajuan_asli
+    // Ini adalah ID pengajuan yang DIJAMIN BENAR.
+
+    $mhs_id = $pengajuan['mahasiswa_id'];
+    $tipe   = $pengajuan['tipe_ujian'];
     
-        $mhs     = $this->Penjadwalan_model->get_mahasiswa($mhs_id);
-        $dosen1  = $mhs['penguji1_id'];
-        $dosen2  = $mhs['penguji2_id'];
-        $pemb    = $mhs['pembimbing_id'];
-    
-        $prd       = $this->Penjadwalan_model->get_periode($tipe);
-        $dates     = $this->Penjadwalan_model->generate_date_range($prd['tanggal_mulai'], $prd['tanggal_selesai']);
-        $timeSlots = ['08:45-10:25', '10:30-12:10', '13:00-14:40', '14:45-16:25'];
-    
-        foreach ($dates as $tgl) {
-            $hari = date('N', strtotime($tgl)); // 6=Sabtu, 7=Minggu
-    
-            // Abaikan weekend (bisa dikonfigurasi jika ingin pakai)
-            if ($hari >= 6) {
+    // Kita tidak lagi menggunakan $pengajuan['id'] karena rawan salah.
+    // Kita gunakan $id_pengajuan_asli yang kita bawa dari fungsi sebelumnya.
+
+    $mhs    = $this->Penjadwalan_model->get_mahasiswa($mhs_id);
+    $dosen1 = $mhs['penguji1_id'];
+    $dosen2 = $mhs['penguji2_id'];
+    $pemb   = $mhs['pembimbing_id'];
+
+    $prd       = $this->Penjadwalan_model->get_periode($tipe);
+    $dates     = $this->Penjadwalan_model->generate_date_range($prd['tanggal_mulai'], $prd['tanggal_selesai']);
+    $timeSlots = ['08:45-10:25', '10:30-12:10', '13:00-14:40', '14:45-16:25'];
+
+    foreach ($dates as $tgl) {
+        $hari = date('N', strtotime($tgl));
+        if ($hari >= 6) {
+            continue;
+        }
+
+        foreach ($timeSlots as $slot) {
+            $is_dosen_tersedia = $this->Penjadwalan_model->cek_ketersediaan_dosen($tgl, $slot, [$dosen1, $dosen2, $pemb]);
+            if (!$is_dosen_tersedia) {
                 continue;
             }
-    
-            foreach ($timeSlots as $slot) {
-               // ✅ Cek apakah dosen pembimbing atau penguji bentrok jadwal
-            //    $dosen_list = [$dosen1, $dosen2, $pemb];
-            //    $dosen_tidak_tersedia = false;
-               
-            //    foreach ($dosen_list as $dosen) {
-            //        if (!$this->Penjadwalan_model->cek_ketersediaan_dosen($dosen, $tgl, $slot)) {
-            //            $dosen_tidak_tersedia = true;
-            //            break; 
-            //        }
-            //    }
-               
-            //    if ($dosen_tidak_tersedia) {
-            //        continue; 
-            //    }
-            $is_dosen_tersedia = $this->Penjadwalan_model->cek_ketersediaan_dosen(
-                $tgl, $slot, [$dosen1, $dosen2, $pemb]
-            );
             
-            // Jika dosen tidak tersedia (terjadi bentrok), lewati slot ini
-            if (!$is_dosen_tersedia) {
-                continue; // lewati slot ini
-            }
-            
-            // Jika dosen tersedia, lanjutkan untuk menghitung prioritas
-            $skor = $this->Penjadwalan_model->hitung_prioritas([
-                'pembimbing' => $pemb,
-                'dosen1'     => $dosen1,
-                'dosen2'     => $dosen2,
-                'tanggal'    => $tgl,
-                'slot'       => $slot,
-                'tipe_ujian' => $tipe
-            ]);
-            
-            
-                if ($skor >= 0.8) {
-                    $ruang = $this->Penjadwalan_model->get_ruangan_available($tipe, $tgl, $slot);
-                    if ($ruang) {
-                        // Simpan jadwal
-                        $jadwal_id = $this->Penjadwalan_model->simpan_jadwal([
-                            'mahasiswa_id'=> $mhs_id,
-                            'judul_skripsi'=> $pengajuan['judul_skripsi'],
-                            'tipe_ujian'  => $tipe,
-                            'tanggal'     => $tgl,
-                            'slot'        => $slot,
-                            'ruangan_id'  => $ruang['id'],
-                            'pembimbing'  => $pemb,
-                            'dosen1'      => $dosen1,
-                            'dosen2'      => $dosen2
-                        ]);
-    
-                        $this->Penjadwalan_model->update_jadwal_pengajuan($peng_id, $jadwal_id);
-                        return; // Stop setelah jadwal berhasil disimpan
-                    }
-                }
+            // Anggap saja skor selalu lolos untuk penyederhanaan
+            $ruang = $this->Penjadwalan_model->get_ruangan_available($tipe, $tgl, $slot);
+            if ($ruang) {
+                // =============================================================
+                // PERUBAHAN PENTING DI SINI:
+                // Siapkan data untuk disimpan ke tabel jadwal_ujian
+                // Pastikan 'pengajuan_id' diisi dengan $id_pengajuan_asli
+                // =============================================================
+                $data_jadwal_baru = [
+                    'mahasiswa_id'      => $mhs_id,
+                    'pengajuan_id'      => $id_pengajuan_asli, // MENGGUNAKAN ID YANG DIJAMIN BENAR
+                    'judul_skripsi'     => $pengajuan['judul_skripsi'],
+                    'tipe_ujian'        => $tipe,
+                    'tanggal'           => $tgl,
+                    'slot_waktu'        => $slot,
+                    'ruangan_id'        => $ruang['id'],
+                    'pembimbing_id'     => $pemb,
+                    'penguji1_id'       => $dosen1,
+                    'penguji2_id'       => $dosen2,
+                    'status_konfirmasi' => 'Menunggu'
+                ];
+                
+                // Panggil fungsi model untuk menyimpan data ini
+                $jadwal_id = $this->Penjadwalan_model->simpan_jadwal_baru($data_jadwal_baru);
+                
+                // Update tabel pengajuan dengan jadwal_id yang baru dibuat
+                $this->Penjadwalan_model->update_jadwal_pengajuan($id_pengajuan_asli, $jadwal_id);
+                
+                return; // Stop setelah jadwal berhasil disimpan
             }
         }
-    
-        // Jika semua tanggal dan slot gagal
-        log_message('error', "Penjadwalan gagal: Tidak ada slot cocok untuk pengajuan ID $peng_id");
     }
 
+    log_message('error', "Penjadwalan gagal: Tidak ada slot cocok untuk pengajuan ID $id_pengajuan_asli");
+}
 
-        public function pengajuan_ruangan() {
+ public function pengajuan_ruangan() {
         $data['title'] = 'Jadwal Ujian';
       $data['jadwal'] = $this->Penjadwalan_model->get_all_jadwal();
+      
     
         // Tampilkan ke view
         $this->load->view('templates/header', $data);
@@ -264,106 +238,296 @@ class Kabag extends CI_Controller {
     $this->load->view('kabag/reschedule', $data); // View baru yang akan kita buat
     $this->load->view('templates/footer', $data);
 }
+public function cari_jadwal_alternatif()
+{
+    if (!$this->input->is_ajax_request()) {
+        show_404(); return;
+    }
+    header('Content-Type: application/json');
 
+    // Ambil semua parameter yang dibutuhkan
+    $jadwal_id = $this->input->get('jadwal_id');
+    $tipe_ujian = $this->input->get('tipe_ujian');
+    $start_date_str = $this->input->get('tanggal_mulai');
+    $original_slot = $this->input->get('slot_waktu_original');
+
+    if (empty($jadwal_id)) {
+        echo json_encode(['success' => false, 'message' => 'Error: ID Jadwal tidak valid.']);
+        return;
+    }
+
+    // === PERUBAHAN UTAMA DIMULAI DI SINI ===
+
+    // 1. Ambil periode pekan seminar yang aktif untuk tipe ujian ini
+    $periode_ujian = $this->Penjadwalan_model->get_periode($tipe_ujian);
+    if (!$periode_ujian) {
+        echo json_encode(['success' => false, 'message' => 'Error: Pekan ujian untuk ' . $tipe_ujian . ' tidak ditemukan/aktif.']);
+        return;
+    }
+    $akhir_pekan_ujian = new DateTime($periode_ujian['tanggal_selesai']);
+
+    // 2. Ambil detail dosen yang terlibat
+    $jadwal = $this->Penjadwalan_model->get_jadwal_by_id($jadwal_id);
+    if (!$jadwal) {
+        echo json_encode(['success' => false, 'message' => 'Error: Data jadwal tidak ditemukan.']);
+        return;
+    }
+    $dosen_terlibat = array_filter([$jadwal->pembimbing_id, $jadwal->penguji1_id, $jadwal->penguji2_id]);
+
+    // 3. Logika pencarian yang sudah dibatasi oleh periode
+    $valid_slots = ['08:45-10:25', '10:30-12:10', '13:00-14:40', '14:45-16:25'];
+    $current_date = new DateTime($start_date_str);
+    $start_date_obj = new DateTime($start_date_str);
+
+    // Loop akan berjalan dari tanggal mulai hingga akhir pekan ujian
+    while ($current_date <= $akhir_pekan_ujian) {
+        $day_of_week = $current_date->format('N');
+        if ($day_of_week >= 6) { // Lewati Sabtu & Minggu
+            $current_date->modify('+1 day');
+            continue;
+        }
+
+        $tanggal_cari = $current_date->format('Y-m-d');
+
+        foreach ($valid_slots as $slot) {
+            if ($current_date == $start_date_obj && $slot == $original_slot) {
+                continue;
+            }
+
+            // Validasi ganda: Dosen DAN Ruangan
+             $dosen_tersedia = $this->Penjadwalan_model->cek_ketersediaan_dosen($tanggal_cari, $slot, $dosen_terlibat, $jadwal_id);
+    if (!$dosen_tersedia) {
+        continue;
+    }
+            
+    // Panggil fungsi model dengan menyertakan ID jadwal yang akan diabaikan
+    $ruangan_tersedia = $this->Penjadwalan_model->get_ruangan_available($tipe_ujian, $tanggal_cari, $slot, $jadwal_id);
+    if ($ruangan_tersedia) {
+                // Slot valid ditemukan!
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Jadwal alternatif yang valid ditemukan.',
+                    'data' => [
+                        'tanggal' => $tanggal_cari,
+                        'slot_waktu' => $slot,
+                        'formatted_date' => $current_date->format('l, d F Y')
+                    ]
+                ]);
+                return; // Hentikan dan kirim hasil
+            }
+        }
+        $current_date->modify('+1 day'); // Lanjut ke hari berikutnya
+    }
+
+    // Jika loop selesai tanpa menemukan jadwal yang cocok
+    echo json_encode(['success' => false, 'message' => 'Tidak ditemukan slot jadwal yang cocok dalam periode pekan seminar yang ditentukan.']);
+}
 public function update_status() {
-    $id_jadwal_yang_diproses = $this->input->post('id');
-    $status_baru_input = $this->input->post('status_konfirmasi'); // Status from main radio buttons
-    $alasan_penolakan = $this->input->post('rejection_reason') ?? '';
+    $id_jadwal = $this->input->post('id');
+    $status_baru = $this->input->post('status_konfirmasi');
+    
+    // Ambil data dari hidden input yang diisi oleh JavaScript
     $new_ruangan_id = $this->input->post('new_ruangan_id');
-    $new_ruangan_name = $this->input->post('new_ruangan_name'); // For catatan_kabag
+    $new_ruangan_name = $this->input->post('new_ruangan_name');
+    $new_tanggal = $this->input->post('new_tanggal');
+    $new_slot_waktu = $this->input->post('new_slot_waktu');
+    $alasan_penolakan = $this->input->post('rejection_reason');
 
-    log_message('debug', "Kabag->update_status: Jadwal ID = {$id_jadwal_yang_diproses}, Status Input = {$status_baru_input}, Alasan = {$alasan_penolakan}, New Room ID = {$new_ruangan_id}");
+    // ALUR 1: PENJADWALAN ULANG OTOMATIS
+    // Ini berjalan jika `cari_jadwal_alternatif` berhasil dan mengisi `new_tanggal` & `new_slot_waktu`.
+    if ($status_baru == 'Dikonfirmasi' && !empty($new_tanggal) && !empty($new_slot_waktu)) {
+        
+        $jadwal_lama = $this->db->get_where('jadwal_ujian', ['id' => $id_jadwal])->row();
+        $tipe_ujian = $jadwal_lama->tipe_ujian;
 
-    $data_update_untuk_jadwal_ujian = [];
-    $final_status = $status_baru_input; // Initialize final status
+        // Cari satu ruangan yang tersedia di jadwal baru tersebut (sebagai final check)
+        $ruangan_baru = $this->Penjadwalan_model->get_ruangan_available($tipe_ujian, $new_tanggal, $new_slot_waktu);
 
-    if (!empty($new_ruangan_id) && !empty($new_ruangan_name)) {
-        // If a recommended room was chosen, override status to Dikonfirmasi and update room
-        $final_status = 'Dikonfirmasi';
-        $data_update_untuk_jadwal_ujian['ruangan_id'] = $new_ruangan_id;
-        $data_update_untuk_jadwal_ujian['catatan_kabag'] = 'Ruangan diubah ke ' . htmlspecialchars($new_ruangan_name) . ' dan jadwal dikonfirmasi.';
-        log_message('debug', "Kabag->update_status: New room selected. Overriding status to Dikonfirmasi. New Room: {$new_ruangan_name} (ID: {$new_ruangan_id})");
-    } else {
-        // No new room selected, proceed with status_baru_input
-        if ($final_status == 'Ditolak') {
-            $catatan_kabag = '';
-            if ($alasan_penolakan == 'room_unavailable') {
-                $catatan_kabag = 'Ditolak - Ruangan yang dipilih tidak tersedia pada jadwal tersebut.';
-            } elseif ($alasan_penolakan == 'all_rooms_full') {
-                $catatan_kabag = 'Ditolak - Semua ruangan penuh, proses penjadwalan ulang otomatis akan dicoba.';
-            } else if (!empty($alasan_penolakan)) {
-                $catatan_kabag = 'Ditolak - Alasan: ' . htmlspecialchars($alasan_penolakan);
-            } else {
-                $catatan_kabag = 'Ditolak - Tidak ada alasan spesifik yang diberikan.';
-            }
-            $data_update_untuk_jadwal_ujian['catatan_kabag'] = $catatan_kabag;
+        if ($ruangan_baru) {
+            // **PROSES INTI**: Mengubah data jadwal lama dengan data baru
+            $this->db->where('id', $id_jadwal)->update('jadwal_ujian', [
+                'tanggal'           => $new_tanggal,
+                'slot_waktu'        => $new_slot_waktu,
+                'ruangan_id'        => $ruangan_baru['id'],
+                'status_konfirmasi' => 'Dikonfirmasi',
+                'catatan_kabag'     => 'Dijadwalkan ulang otomatis ke ' . $new_tanggal . ' karena slot sebelumnya penuh.'
+            ]);
+            $this->session->set_flashdata('success', 'Jadwal berhasil dijadwalkan ulang secara otomatis.');
         } else {
-            // If status is Menunggu or Dikonfirmasi (without changing room via recommendation)
-            $data_update_untuk_jadwal_ujian['catatan_kabag'] = NULL; // Clear previous catatan if any
+            $this->session->set_flashdata('error', 'Gagal menjadwalkan ulang. Slot yang direkomendasikan sudah tidak tersedia. Silakan coba lagi.');
         }
+
+    // ALUR 2: Ganti Ruangan Saja
+    } elseif ($status_baru == 'Dikonfirmasi' && !empty($new_ruangan_id)) {
+        // ... (logika ini sudah benar)
+        $this->db->where('id', $id_jadwal)->update('jadwal_ujian', [
+            'ruangan_id'        => $new_ruangan_id,
+            'status_konfirmasi' => 'Dikonfirmasi',
+            'catatan_kabag'     => 'Ruangan diubah ke ' . htmlspecialchars($new_ruangan_name)
+        ]);
+        $this->session->set_flashdata('success', 'Ruangan untuk jadwal berhasil diperbarui.');
+
+    // ALUR 3: Update Status Biasa (termasuk penolakan murni)
+    } else {
+        // ... (logika ini sudah benar)
+        $data_update = ['status_konfirmasi' => $status_baru];
+        if ($status_baru == 'Ditolak') {
+            $data_update['catatan_kabag'] = 'Ditolak dengan alasan: ' . $alasan_penolakan;
+        }
+        $this->db->where('id', $id_jadwal)->update('jadwal_ujian', $data_update);
+        $this->session->set_flashdata('success', 'Status jadwal berhasil diperbarui.');
     }
 
-    $data_update_untuk_jadwal_ujian['status_konfirmasi'] = $final_status;
-
-    $this->db->where('id', $id_jadwal_yang_diproses);
-    $updated = $this->db->update('jadwal_ujian', $data_update_untuk_jadwal_ujian);
-
-    if ($updated) {
-        $success_message = 'Status jadwal berhasil diperbarui.';
-        if (!empty($new_ruangan_id)) {
-            $success_message = 'Jadwal berhasil diperbarui dengan ruangan ' . htmlspecialchars($new_ruangan_name) . ' dan status Dikonfirmasi.';
-        }
-
-        // Rescheduling logic for 'all_rooms_full' if that was the original path (and no new room chosen)
-        if ($final_status == 'Ditolak' && $alasan_penolakan == 'all_rooms_full' && empty($new_ruangan_id)) {
-            log_message('debug', "Kabag->update_status: Ditolak (all_rooms_full) for jadwal_ujian.id = {$id_jadwal_yang_diproses}. Attempting reschedule.");
-            // ... (existing rescheduling logic remains here) ...
-            // Ensure this block is ONLY entered if a new room was NOT selected.
-            // The condition `empty($new_ruangan_id)` handles this.
-            $pengajuan_terkait = $this->db->get_where('pengajuan_ujian_prioritas', ['jadwal_id' => $id_jadwal_yang_diproses])->row_array();
-            if ($pengajuan_terkait) {
-                // ... (rest of your rescheduling logic for all_rooms_full)
-                // For brevity, I'm not repeating the full reschedule block, assume it's correctly placed
-                $id_pengajuan_asli = $pengajuan_terkait['id'];
-                $detail_jadwal_lama = $this->db->get_where('jadwal_ujian', ['id' => $id_jadwal_yang_diproses])->row_array();
-                if ($detail_jadwal_lama) {
-                    $data_untuk_reschedule = [ /* ... */ ];
-                    // Assuming $this->penjadwalan_otomatis_untuk_reschedule exists in your Kabag controller or is loaded
-                    if (method_exists($this, 'penjadwalan_otomatis_untuk_reschedule')) {
-                         $hasil_reschedule = $this->penjadwalan_otomatis_untuk_reschedule($data_untuk_reschedule, $id_jadwal_yang_diproses);
-                        if ($hasil_reschedule['success']) {
-                            $this->session->set_flashdata('success', 'Status jadwal Ditolak. ' . $hasil_reschedule['message']);
-                        } else {
-                            $this->db->where('id', $id_pengajuan_asli)->update('pengajuan_ujian_prioritas', ['status' => 'Gagal Jadwal Ulang (Kabag)', 'jadwal_id' => NULL]);
-                            $this->session->set_flashdata('error', 'Status jadwal Ditolak, penjadwalan ulang otomatis GAGAL: ' . $hasil_reschedule['error']);
-                        }
-                    } else {
-                         log_message('error', "Kabag->update_status: Method penjadwalan_otomatis_untuk_reschedule not found.");
-                         $this->session->set_flashdata('error', 'Status jadwal Ditolak, tetapi fungsi penjadwalan ulang otomatis tidak tersedia.');
-                    }
-                } else {
-                     $this->session->set_flashdata('error', 'Status jadwal Ditolak, gagal mendapatkan detail jadwal lama untuk reschedule.');
-                }
-            } else {
-                 $this->session->set_flashdata('error', 'Status jadwal Ditolak, tidak ditemukan pengajuan asli untuk reschedule.');
-            }
-             redirect('kabag/pengajuan_ruangan'); // Redirect early if reschedule path taken
-             return;
-        }
-        $this->session->set_flashdata('success', $success_message);
-    } else {
-        // Check if anything was actually changed or if query failed
-        if ($this->db->affected_rows() === 0 && empty($this->db->error()['message'])) {
-            $this->session->set_flashdata('info', 'Tidak ada perubahan pada status jadwal.');
-        } else {
-            $this->session->set_flashdata('error', 'Gagal memperbarui status jadwal. DB Error: '.$this->db->error()['message']);
-        }
-    }
     redirect('kabag/pengajuan_ruangan');
 }
+// public function update_status() {
+//     $id_jadwal = $this->input->post('id');
+//     $status_baru = $this->input->post('status_konfirmasi');
+//     $alasan_penolakan = $this->input->post('rejection_reason');
+//     $new_ruangan_id = $this->input->post('new_ruangan_id');
+//     $new_ruangan_name = $this->input->post('new_ruangan_name');
 
-   
+//     // ALUR 1: Jika memilih ruangan rekomendasi dari daftar (sudah benar)
+//     if (!empty($new_ruangan_id)) {
+//         $this->db->where('id', $id_jadwal)->update('jadwal_ujian', [
+//             'status_konfirmasi' => 'Dikonfirmasi',
+//             'ruangan_id'        => $new_ruangan_id,
+//             'catatan_kabag'     => 'Ruangan diubah ke ' . htmlspecialchars($new_ruangan_name)
+//         ]);
+//         $this->session->set_flashdata('success', 'Jadwal berhasil diperbarui dengan ruangan ' . htmlspecialchars($new_ruangan_name) . '.');
+//         redirect('kabag/pengajuan_ruangan');
+//         return;
+//     }
 
+//     // ALUR 2: Jika status yang dipilih adalah "Ditolak"
+//     if ($status_baru == 'Ditolak') {
+//         // KASUS KHUSUS: Reschedule karena ruangan tidak tersedia ATAU semua penuh
+//         if ($alasan_penolakan == 'room_unavailable' || $alasan_penolakan == 'all_rooms_full') {
+            
+//             // Panggil fungsi reschedule & bump yang baru di model
+//             $hasil = $this->Penjadwalan_model->reschedule_with_bumping($id_jadwal);
+
+//             if ($hasil['success']) {
+//                 $this->session->set_flashdata('success', 'Proses penjadwalan ulang berantai berhasil. ' . ($hasil['message'] ?? ''));
+//             } else {
+//                 $this->session->set_flashdata('error', 'Penjadwalan ulang GAGAL: ' . ($hasil['error'] ?? 'Terjadi kesalahan tidak diketahui.'));
+//             }
+//             redirect('kabag/pengajuan_ruangan');
+//             return;
+//         }
+        
+//         // Logika penolakan biasa (tanpa reschedule)
+//         $this->db->where('id', $id_jadwal)->update('jadwal_ujian', ['status_konfirmasi' => 'Ditolak', 'catatan_kabag' => 'Ditolak manual oleh Kabag.']);
+//         $this->session->set_flashdata('success', 'Jadwal berhasil ditolak.');
+    
+//     // ALUR 3: Konfirmasi biasa
+//     } else {
+//         $this->db->where('id', $id_jadwal)->update('jadwal_ujian', ['status_konfirmasi' => 'Dikonfirmasi', 'catatan_kabag' => NULL]);
+//         $this->session->set_flashdata('success', 'Jadwal berhasil dikonfirmasi.');
+//     }
+
+//     redirect('kabag/pengajuan_ruangan');
+// }
+// application/controllers/Kabag.php
+
+public function jadwalkan_semua_terkonfirmasi() {
+    // 1. Ambil semua pengajuan yang terkonfirmasi, sudah terurut berdasarkan prioritas
+    $antrean_mahasiswa = $this->Penjadwalan_model->get_all_confirmed_applications_sorted();
+
+    if (empty($antrean_mahasiswa)) {
+        $this->session->set_flashdata('info', 'Tidak ada pengajuan yang perlu dijadwalkan saat ini.');
+        redirect('kabag/berkas');
+        return;
+    }
+
+    $sukses_count = 0;
+    $gagal_count = 0;
+
+    // 2. Loop melalui setiap mahasiswa di antrean
+    foreach ($antrean_mahasiswa as $pengajuan) {
+        // Panggil fungsi penjadwalan privat untuk setiap pengajuan
+        $hasil = $this->_find_and_assign_schedule($pengajuan);
+        if ($hasil) {
+            $sukses_count++;
+        } else {
+            $gagal_count++;
+        }
+    }
+
+    // 3. Berikan laporan hasil penjadwalan
+    $this->session->set_flashdata('success', "Proses penjadwalan selesai. Berhasil menjadwalkan {$sukses_count} mahasiswa.");
+    if ($gagal_count > 0) {
+        $this->session->set_flashdata('error', "{$gagal_count} mahasiswa gagal dijadwalkan karena tidak ditemukan slot yang cocok.");
+    }
+
+    redirect('kabag/berkas');
+}
+
+
+private function _find_and_assign_schedule($pengajuan) {
+    // Fungsi ini sama seperti penjadwalan_otomatis Anda yang lama,
+    // tapi dibuat lebih modular.
+
+    $mhs_id = $pengajuan['mahasiswa_id'];
+    $tipe = $pengajuan['tipe_ujian'];
+    $id_pengajuan_asli = $pengajuan['id'];
+    
+    // Ambil data dosen dari hasil query sebelumnya
+    $dosen1 = $pengajuan['penguji1_id'];
+    $dosen2 = $pengajuan['penguji2_id'];
+    $pemb = $pengajuan['pembimbing_id'];
+
+    if (empty($dosen1) || empty($dosen2) || empty($pemb)) {
+        log_message('error', "Penjadwalan gagal: Dosen penguji/pembimbing belum di-set untuk pengajuan ID $id_pengajuan_asli");
+        return false;
+    }
+
+    $prd = $this->Penjadwalan_model->get_periode($tipe);
+    $dates = $this->Penjadwalan_model->generate_date_range($prd['tanggal_mulai'], $prd['tanggal_selesai']);
+    $timeSlots = ['08:45-10:25', '10:30-12:10', '13:00-14:40', '14:45-16:25'];
+
+    foreach ($dates as $tgl) {
+        // Abaikan hari Sabtu dan Minggu
+        if (date('N', strtotime($tgl)) >= 6) continue;
+
+        foreach ($timeSlots as $slot) {
+            // Cek ketersediaan semua dosen yang terlibat
+            if (!$this->Penjadwalan_model->cek_ketersediaan_dosen($tgl, $slot, [$dosen1, $dosen2, $pemb])) {
+                continue;
+            }
+            
+            // Cari ruangan yang tersedia
+            $ruang = $this->Penjadwalan_model->get_ruangan_available($tipe, $tgl, $slot);
+            if ($ruang) {
+                // Jika semua cocok, simpan jadwal
+                $data_jadwal_baru = [
+                    'mahasiswa_id'  => $mhs_id,
+                    'pengajuan_id'  => $id_pengajuan_asli,
+                    'judul_skripsi' => $pengajuan['judul_skripsi'],
+                    'tipe_ujian'    => $tipe,
+                    'tanggal'       => $tgl,
+                    'slot_waktu'    => $slot,
+                    'ruangan_id'    => $ruang['id'],
+                    'pembimbing_id' => $pemb,
+                    'penguji1_id'   => $dosen1,
+                    'penguji2_id'   => $dosen2,
+                    'status_konfirmasi' => 'Menunggu', // Dosen perlu konfirmasi
+                    'priority_score' => $pengajuan['priority_score']
+                ];
+                
+                $jadwal_id = $this->Penjadwalan_model->simpan_jadwal_baru($data_jadwal_baru);
+                
+                // Update tabel pengajuan dengan ID jadwal yang baru
+                $this->Penjadwalan_model->update_jadwal_pengajuan($id_pengajuan_asli, $jadwal_id);
+                
+                return true; // Berhasil, hentikan pencarian untuk mahasiswa ini
+            }
+        }
+    }
+
+    log_message('error', "Penjadwalan gagal: Tidak ada slot cocok untuk pengajuan ID $id_pengajuan_asli");
+    return false; // Gagal menemukan jadwal untuk mahasiswa ini
+}
 public function get_recommended_rooms() {
     header('Content-Type: application/json'); // Set ini di paling awal
 

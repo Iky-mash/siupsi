@@ -1,19 +1,45 @@
 <!DOCTYPE html>
-<html lang="id"> <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="apple-touch-icon" sizes="76x76" href="<?= base_url() ?>assets/img/apple-icon.png" />
-    <link rel="icon" type="image/png" href="<?= base_url() ?>assets/img/favicon.png" />
-    <title>Login SIUPSI</title>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
-    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
-    <link href="<?= base_url() ?>assets/css/nucleo-icons.css" rel="stylesheet" />
-    <link href="<?= base_url() ?>assets/css/nucleo-svg.css" rel="stylesheet" />
-    <link href="<?= base_url() ?>assets/css/soft-ui-dashboard-tailwind.css?v=1.0.5" rel="stylesheet" />
+<html>
 
-    <script defer data-site="YOUR_DOMAIN_HERE" src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
-  </head>
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link
+		rel="apple-touch-icon"
+		sizes="76x76"
+		href="<?= base_url() ?>assets/img/apple-icon.png" />
+	<link rel="icon" type="image/png" href="<?= base_url() ?>assets/img/favicon.png" />
+	    <title>Login Siupsi</title>
+	<!--     Fonts and icons     -->
+	<link href="<?= base_url('assets/css/style.css') ?>" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+	<link
+		href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700"
+		rel="stylesheet" />
+	<!-- Font Awesome Icons -->
+	<script
+		src="https://kit.fontawesome.com/42d5adcbca.js"
+		crossorigin="anonymous"></script>
+	<!-- Nucleo Icons -->
+	<link href="<?= base_url() ?>assets/css/nucleo-icons.css" rel="stylesheet" />
+	<link href="<?= base_url() ?>assets/css/nucleo-svg.css" rel="stylesheet" />
+	<!-- Popper -->
+	<script src="https://unpkg.com/@popperjs/core@2"></script>
+	<!-- Main Styling -->
+	<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+	<link
+		href="<?= base_url() ?>assets/css/soft-ui-dashboard-tailwind.css?v=1.0.5"
+		rel="stylesheet" />
+		<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+	<!-- Nepcha Analytics (nepcha.com) -->
+	<!-- Nepcha is a easy-to-use web analytics. No cookies and fully compliant with GDPR, CCPA and PECR. -->
+	<script
+		defer
+		data-site="YOUR_DOMAIN_HERE"
+		src="https://api.nepcha.com/js/nepcha-analytics.js"></script>
+</head>
 
   <body class="m-0 font-sans antialiased font-normal bg-white text-start text-base leading-default text-slate-500">
     
@@ -65,10 +91,7 @@
                         <button type="submit" class="inline-block w-full px-6 py-3 mt-6 mb-0 font-bold text-center text-white uppercase align-middle transition-all bg-transparent border-0 rounded-lg cursor-pointer shadow-soft-md bg-x-25 bg-150 leading-pro text-xs ease-soft-in tracking-tight-soft bg-gradient-to-tl from-blue-600 to-cyan-400 hover:scale-102 hover:shadow-soft-xs active:opacity-85">Masuk</button> </div>
                   </form>
                 </div>
-                <div class="p-6 px-1 pt-0 text-center bg-transparent border-t-0 border-t-solid rounded-b-2xl lg:px-2">
-                    <p class="mx-auto mb-6 leading-normal text-sm">
-                      Belum punya akun? <a href="<?= base_url('auth/register') ?>" class="relative z-10 font-semibold text-transparent bg-gradient-to-tl from-blue-600 to-cyan-400 bg-clip-text">Daftar</a> </p>
-                  </div>
+                
               </div>
             </div>
           </div>

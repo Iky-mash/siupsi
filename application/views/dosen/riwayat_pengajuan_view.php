@@ -1,8 +1,6 @@
 
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 20px; background-color: #f4f4f4; color: #333; }
-        .container { max-width: 900px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1 { text-align: center; margin-bottom: 30px; }
+       
         
         .mahasiswa-section { 
             margin-bottom: 15px; /* Jarak antar mahasiswa */

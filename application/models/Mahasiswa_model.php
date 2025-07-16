@@ -1,14 +1,15 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 class Mahasiswa_model extends CI_Model {
+     private $_table_mhs = "mahasiswa";
     public function get_all_mahasiswa()
     {
         return $this->db->get('mahasiswa')->result();
     }
     public function getMahasiswaById($id) {
         $this->db->select('
-            mahasiswa.id, mahasiswa.nama, mahasiswa.email, mahasiswa.nim, mahasiswa.fakultas, mahasiswa.prodi,
-            mahasiswa.role_id, mahasiswa.is_active, mahasiswa.judul_skripsi,
+            mahasiswa.id, mahasiswa.nama, mahasiswa.email, mahasiswa.nim, mahasiswa.fakultas, mahasiswa.prodi, mahasiswa.tahun_masuk,
+            mahasiswa.role_id, mahasiswa.is_active, mahasiswa.judul_skripsi, 
             pembimbing.nama AS pembimbing_nama,
             penguji1.nama AS penguji1_nama,
             penguji2.nama AS penguji2_nama
@@ -40,6 +41,7 @@ class Mahasiswa_model extends CI_Model {
             mahasiswa.nama, 
             mahasiswa.nim, 
             mahasiswa.email, 
+            mahasiswa.tahun_masuk,
             mahasiswa.judul_skripsi, 
             dosen_pembimbing.nama AS pembimbing_nama, 
             dosen_penguji1.nama AS penguji1_nama, 
@@ -49,6 +51,41 @@ class Mahasiswa_model extends CI_Model {
         $this->db->join('dosen AS dosen_pembimbing', 'dosen_pembimbing.id = mahasiswa.pembimbing_id', 'left');
         $this->db->join('dosen AS dosen_penguji1', 'dosen_penguji1.id = mahasiswa.penguji1_id', 'left');
         $this->db->join('dosen AS dosen_penguji2', 'dosen_penguji2.id = mahasiswa.penguji2_id', 'left');
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+      public function search_mahasiswa($keyword = null) {
+        // Bagian SELECT dan JOIN sama persis dengan fungsi Anda
+        $this->db->select('
+            mahasiswa.id, 
+            mahasiswa.nama, 
+            mahasiswa.nim, 
+            mahasiswa.email, 
+            mahasiswa.tahun_masuk,
+            mahasiswa.judul_skripsi, 
+            dosen_pembimbing.nama AS pembimbing_nama, 
+            dosen_penguji1.nama AS penguji1_nama, 
+            dosen_penguji2.nama AS penguji2_nama
+        ');
+        $this->db->from('mahasiswa');
+        $this->db->join('dosen AS dosen_pembimbing', 'dosen_pembimbing.id = mahasiswa.pembimbing_id', 'left');
+        $this->db->join('dosen AS dosen_penguji1', 'dosen_penguji1.id = mahasiswa.penguji1_id', 'left');
+        $this->db->join('dosen AS dosen_penguji2', 'dosen_penguji2.id = mahasiswa.penguji2_id', 'left');
+
+        // ---- BAGIAN LOGIKA PENCARIAN DITAMBAHKAN DI SINI ----
+        if (!empty($keyword)) {
+            // Mengelompokkan kondisi LIKE agar tidak bentrok dengan JOIN
+            $this->db->group_start();
+            $this->db->like('mahasiswa.nama', $keyword);
+            $this->db->or_like('mahasiswa.nim', $keyword);
+            $this->db->group_end();
+        }
+        // ---- AKHIR BAGIAN LOGIKA PENCARIAN ----
+
+        // Menambahkan urutan agar hasil konsisten
+        $this->db->order_by('mahasiswa.nama', 'ASC');
+
         $query = $this->db->get();
         return $query->result();
     }
@@ -72,6 +109,7 @@ class Mahasiswa_model extends CI_Model {
             mahasiswa.nim, 
             mahasiswa.fakultas, 
             mahasiswa.prodi, 
+            mahasiswa.tahun_masuk,
             mahasiswa.role_id, 
             mahasiswa.is_active,  
             mahasiswa.judul_skripsi, 
@@ -129,7 +167,7 @@ class Mahasiswa_model extends CI_Model {
     }
 
       public function get_mahasiswa_by_pembimbing($pembimbing_id) {
-        $this->db->select('mahasiswa.id, mahasiswa.nama, mahasiswa.nim, mahasiswa.judul_skripsi, mahasiswa.prodi, mahasiswa.fakultas, mahasiswa.status_sempro, mahasiswa.status_semhas, dosen_pembimbing.nama AS pembimbing_nama, 
+        $this->db->select('mahasiswa.id, mahasiswa.nama, mahasiswa.nim, mahasiswa.judul_skripsi, mahasiswa.prodi,mahasiswa.tahun_masuk, mahasiswa.fakultas, mahasiswa.status_sempro, mahasiswa.status_semhas, dosen_pembimbing.nama AS pembimbing_nama, 
             dosen_penguji1.nama AS penguji1_nama, 
             dosen_penguji2.nama AS penguji2_nama');
         $this->db->from('mahasiswa');
@@ -146,6 +184,7 @@ class Mahasiswa_model extends CI_Model {
             mahasiswa.nama, 
             mahasiswa.nim, 
             mahasiswa.email, 
+            mahasiswa.tahun_masuk,
             mahasiswa.judul_skripsi, 
             dosen_pembimbing.nama AS pembimbing_nama, 
             dosen_penguji1.nama AS penguji1_nama, 

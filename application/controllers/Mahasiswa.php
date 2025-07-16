@@ -10,6 +10,7 @@ class Mahasiswa extends CI_Controller{
         $this->load->library('session');  // Pastikan session di-load
         $this->load->helper('url');   
         $this->load->model('Pengajuan_model'); 
+         $this->load->model('pekan_model'); 
         $this->load->model('Penjadwalan_model'); 
         $this->load->model('Riwayat_ujian_model');  // Helper untuk redirect
         if_logged_in();
@@ -31,15 +32,10 @@ class Mahasiswa extends CI_Controller{
         $data['title'] = 'Dashboard';
         
         // Ambil data mahasiswa beserta nama pembimbingnya
+        $data['jadwal_sempro'] = $this->pekan_model->get_jadwal('sempro');
+        $data['jadwal_semhas'] = $this->pekan_model->get_jadwal('semhas');
         $mahasiswa_data = $this->Mahasiswa_model->get_mahasiswa_with_pembimbing();
-        
-        // Jika query hanya mengembalikan satu mahasiswa (berdasarkan NIM di session),
-        // dan Anda ingin mengaksesnya langsung tanpa foreach di view (meski foreach tetap aman)
-        // Anda bisa kirim objek tunggal jika yakin hanya ada satu.
-        // Namun, karena model mengembalikan result() yang merupakan array,
-        // maka $data['mahasiswa'] akan menjadi array.
-        // Jika hanya ada satu mahasiswa, array tersebut akan berisi satu elemen.
-        $data['mahasiswa_list'] = $mahasiswa_data; // Ganti nama variabel agar lebih jelas itu list
+        $data['mahasiswa_list'] = $mahasiswa_data;
 
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar_mahasiswa', $data); // Sesuaikan dengan nama sidebar Anda
@@ -49,7 +45,7 @@ class Mahasiswa extends CI_Controller{
     }
 
     public function profil_saya() {
-        $data['title'] = 'Profil Saya';
+        $data['title'] = 'Profil';
         
         // Ambil data user dari tabel 'user'
         $data['user'] = $this->db->get_where('user', ['email' => $this->session->userdata('email')])->row_array();
@@ -65,7 +61,7 @@ class Mahasiswa extends CI_Controller{
         $this->load->view('templates/footer');
     }
     public function edit($id) {
-        $data['title'] = 'Dashboard Mahasiswa';
+              $data['title'] = 'Profil';
         // Ambil data mahasiswa berdasarkan ID
         $data['mahasiswa'] = $this->Mahasiswa_model->getMahasiswaById($id);
 
@@ -209,7 +205,7 @@ public function cetak_pdf($id_jadwal)
     
      public function riwayat_pengajuan() {
         // Ambil ID mahasiswa dari session
-          $data['title'] = 'Riwayat Ujian';
+          $data['title'] = 'Riwayat';
         $mahasiswa_id = $this->session->userdata('id');
 
         // Ambil detail mahasiswa

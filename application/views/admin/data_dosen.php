@@ -13,6 +13,7 @@
                     <thead>
                         <tr class="bg-gray-100">
                             <th class="border border-gray-300 px-4 py-2 text-sm font-semibold text-center">No</th>
+                            <th class="border border-gray-300 px-4 py-2 text-sm font-semibold text-center">Id</th>
                             <th class="border border-gray-300 px-4 py-2 text-sm font-semibold text-center">Nama</th>
                             <th class="border border-gray-300 px-4 py-2 text-sm font-semibold text-center">Email</th>
                             <th class="border border-gray-300 px-4 py-2 text-sm font-semibold text-center">NIK</th>
@@ -24,6 +25,7 @@
                         <?php foreach ($dosen as $d) : ?>
                             <tr class="hover:bg-gray-100">
                                 <td class="border border-gray-300 px-4 py-2 text-center text-sm"><?= $no++; ?></td>
+                                <td class="border border-gray-300 px-4 py-2 text-sm text-center"><?= htmlspecialchars($d->id); ?></td>
                                 <td class="border border-gray-300 px-4 py-2 text-sm text-center"><?= htmlspecialchars($d->nama); ?></td>
                                 <td class="border border-gray-300 px-4 py-2 text-sm text-center"><?= htmlspecialchars($d->email); ?></td>
                                 <td class="border border-gray-300 px-4 py-2 text-sm text-center"><?= htmlspecialchars($d->nip); ?></td>

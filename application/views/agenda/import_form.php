@@ -43,14 +43,26 @@
             </div>
 
             <div class="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
-                <p class="text-gray-700 leading-relaxed mb-2 font-medium text-gray-800">Panduan Format File Excel:</p>
-                <p class="text-sm text-gray-600 mb-3">Silakan unggah file Excel (.xlsx atau .xls) dengan format berikut. Baris pertama akan dianggap sebagai header dan dilewati.</p>
-                <ul class="list-disc list-inside space-y-2 text-sm text-gray-600">
-                    <li>Kolom A: <strong>tanggal</strong> (Format: YYYY-MM-DD, contoh: <code class="bg-gray-200 px-1 py-0.5 rounded text-xs text-gray-700">2024-12-31</code>)</li>
-                    <li>Kolom B: <strong>slot_waktu</strong> (Contoh: <code class="bg-gray-200 px-1 py-0.5 rounded text-xs text-gray-700">08:45-10:25</code> atau <code class="bg-gray-200 px-1 py-0.5 rounded text-xs text-gray-700">08:45-10:25,13:00-14:40</code> jika lebih dari satu slot dalam satu hari)</li>
-                </ul>
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                        <p class="text-gray-700 leading-relaxed mb-2 font-medium text-gray-800">Panduan Format File Excel:</p>
+                        <p class="text-sm text-gray-600 mb-3">Silakan unggah file Excel (.xlsx atau .xls) dengan format berikut. Baris pertama akan dianggap sebagai header dan dilewati.</p>
+                        <ul class="list-disc list-inside space-y-2 text-sm text-gray-600">
+                            <li>Kolom A: <strong>tanggal</strong> (Format: YYYY-MM-DD, contoh: <code class="bg-gray-200 px-1 py-0.5 rounded text-xs text-gray-700">2024-12-31</code>)</li>
+                            <li>Kolom B: <strong>slot_waktu</strong> (Contoh: <code class="bg-gray-200 px-1 py-0.5 rounded text-xs text-gray-700">08:45-10:25</code> atau <code class="bg-gray-200 px-1 py-0.5 rounded text-xs text-gray-700">08:45-10:25,13:00-14:40</code>)</li>
+                        </ul>
+                    </div>
+                    <div class="mt-4 sm:mt-0 sm:ml-4 flex-shrink-0">
+                        <a href="<?= base_url('assets/templates/Template_agenda_dosen.xlsx') ?>" download
+                           class="inline-flex items-center justify-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition ease-in-out duration-150">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor" class="rotate-180">
+                                <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            Unduh Template
+                        </a>
+                    </div>
+                </div>
             </div>
-
             <?= form_open_multipart('agenda/process_import_excel', ['class' => 'space-y-6']); ?>
                 <div>
                     <label for="excel_file" class="block text-sm font-medium text-gray-700 mb-1">Pilih File Excel:</label>

@@ -50,10 +50,20 @@ class Admin extends CI_Controller {
         $this->load->view('templates/footer');
     }
     public function data_mahasiswa() {
-        $this->load->model('Mahasiswa_model'); // Pastikan model dimuat
-        $data['mahasiswa'] = $this->Mahasiswa_model->get_all_mahasiswa_with_details();
-  
-        $data['title'] = 'Data Mahasiswa';
+        // $this->load->model('Mahasiswa_model'); 
+
+    // Ambil keyword dari URL
+    $keyword = $this->input->get('keyword');
+
+    // Panggil FUNGSI PENCARIAN dan simpan hasilnya ke variabel $data['mahasiswa']
+    // Ganti 'search_mahasiswa' dengan nama fungsi yang benar di model Anda jika berbeda
+    $data['mahasiswa'] = $this->Mahasiswa_model->search_mahasiswa($keyword);
+    
+    // Kirim juga keyword ke view agar bisa digunakan untuk pesan "tidak ditemukan"
+    $data['keyword'] = $keyword;
+    
+    // Siapkan data lain untuk view
+    $data['title'] = 'Data Mahasiswa';
         
 
         $this->load->view('templates/header', $data);
@@ -213,49 +223,44 @@ public function download_laporan_seminar() {
         $this->load->view('admin/importdata_mhs', $data);
         $this->load->view('templates/footer');
     }
-      public function tambah_dosen() {
-         $data['title'] = 'Tambah Data Dosen';
-        // Aturan validasi
-        $this->form_validation->set_rules('nama', 'Nama Lengkap', 'required|trim');
-        // Validasi email: required, valid_email, dan is_unique (cek di tabel 'dosen' kolom 'email')
-        $this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email|is_unique[dosen.email]', [
-            'is_unique' => 'Email ini sudah terdaftar.'
-        ]);
-        $this->form_validation->set_rules('password', 'Password', 'required|min_length[6]'); // Contoh min_length
-        // Validasi NIP: required dan is_unique (cek di tabel 'dosen' kolom 'nip')
-        $this->form_validation->set_rules('nip', 'NIP', 'required|trim|is_unique[dosen.nip]', [
-            'is_unique' => 'NIP ini sudah terdaftar.'
-        ]);
-        $this->form_validation->set_rules('role_id', 'Role ID', 'required|integer');
+    public function tambah_dosen() {
+    $data['title'] = 'Tambah Data Dosen';
+    // Aturan validasi
+    $this->form_validation->set_rules('nama', 'Nama Lengkap', 'required|trim');
+    $this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email|is_unique[dosen.email]', [
+        'is_unique' => 'Email ini sudah terdaftar.'
+    ]);
+    $this->form_validation->set_rules('password', 'Password', 'required|min_length[6]');
+    $this->form_validation->set_rules('nip', 'NIP', 'required|trim|is_unique[dosen.nip]', [
+        'is_unique' => 'NIP ini sudah terdaftar.'
+    ]);
+    // Tidak ada lagi validasi untuk role_id
 
-        if ($this->form_validation->run() == FALSE) {
-            // Jika validasi gagal, tampilkan kembali form dengan pesan error
-            $data['judul'] = 'Form Tambah Data Dosen';
-            
+    if ($this->form_validation->run() == FALSE) {
+        // Jika validasi gagal, tampilkan kembali form
+        $data['judul'] = 'Form Tambah Data Dosen';
+        
         $this->load->view('templates/header', $data);
         $this->load->view('templates/sidebar_admin', $data);
         $this->load->view('templates/navbar', $data);
         $this->load->view('admin/tambah_dosen', $data);
         $this->load->view('templates/footer');
-            // Ganti 'nama_view_form_dosen' dengan nama file view Anda
-        } else {
-            // Jika validasi berhasil, proses penyimpanan data
-            $data_dosen = [
-                'nama' => $this->input->post('nama', true),
-                'email' => $this->input->post('email', true),
-                'password' => password_hash($this->input->post('password'), PASSWORD_DEFAULT), // Selalu hash password
-                'nip' => $this->input->post('nip', true),
-                'role_id' => $this->input->post('role_id', true)
-            ];
+    } else {
+        // Jika validasi berhasil, proses penyimpanan data
+        $data_dosen = [
+            'nama' => $this->input->post('nama', true),
+            'email' => $this->input->post('email', true),
+            'password' => password_hash($this->input->post('password'), PASSWORD_DEFAULT),
+            'nip' => $this->input->post('nip', true),
+            'role_id' => 2 // Langsung tetapkan nilainya menjadi 2
+        ];
 
-            $this->Dosen_model->tambah_dosen($data_dosen);
+        $this->Dosen_model->tambah_dosen($data_dosen);
 
-            // Set flashdata untuk pesan sukses
-            $this->session->set_flashdata('pesan', '<div class="alert alert-success">Data dosen berhasil ditambahkan!</div>');
-            redirect('admin/tambah_dosen'); 
-        }
+        $this->session->set_flashdata('pesan', '<div class="alert alert-success">Data dosen berhasil ditambahkan!</div>');
+        redirect('admin/tambah_dosen'); 
     }
-
+}
       // Method untuk menampilkan halaman edit mahasiswa
       public function edit_mahasiswa($id) {
         $data['title'] = 'Dashboard Admin';
@@ -308,6 +313,7 @@ public function download_laporan_seminar() {
                 'nim' => $this->input->post('nim'),
                 'fakultas' => $this->input->post('fakultas'),
                 'prodi' => $this->input->post('prodi'),
+                'tahun_masuk' => $this->input->post('tahun_masuk'),
                 'judul_skripsi' => $this->input->post('judul_skripsi'),
                 'is_active' => $this->input->post('is_active') ? 1 : 0,
                 'pembimbing_id' => $this->input->post('pembimbing'),
